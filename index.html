@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musa — Inspiración y Moodboards</title>
+<style>
+  :root{
+    --bg:#0b0b0d; --bg-elev:#141416; --card:#18181b; --card-hover:#1f1f23; --border:#26262b;
+    --text:#f2f2f3; --text-dim:#9a9aa3; --text-faint:#616169;
+    --accent:#a78bfa; --accent2:#f472b6; --accent-text:#1a0b2e;
+    --accent-bg:rgba(167,139,250,.14);
+    --green:#4ade80; --danger:#f87171; --radius:12px;
+    --font: ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:var(--font); font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+  #app{min-height:100vh; display:flex; flex-direction:column;}
+  a{color:inherit;}
+  ::placeholder{color:var(--text-faint);}
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-thumb{background:var(--border); border-radius:6px;}
+
+  .topnav{ display:flex; align-items:center; justify-content:space-between; padding:14px 28px; border-bottom:1px solid var(--border); background:var(--bg); flex-wrap:wrap; gap:12px; position:sticky; top:0; z-index:40; }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:16px; cursor:pointer;}
+  .brand-icon{ width:28px;height:28px;border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent-text); }
+  .nav-tabs{display:flex; gap:4px; background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:3px;}
+  .nav-tab{ padding:8px 16px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; color:var(--text-dim); }
+  .nav-tab.active{background:var(--card); color:var(--text);}
+  .nav-right{display:flex; align-items:center; gap:10px;}
+
+  main{flex:1; padding:22px 28px 70px; max-width:1440px; width:100%; margin:0 auto;}
+
+  .page-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:16px; }
+  h1{font-size:22px; margin:0; font-weight:800;}
+  p.lead{color:var(--text-dim); margin:4px 0 0; font-size:13.5px;}
+
+  .toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+  .toolbar-label{font-size:11.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.04em; margin-right:-2px;}
+  .select, .input, .textarea{ background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:9px 12px; font-size:13.5px; font-family:var(--font); }
+  .input{width:100%;}
+  .textarea{width:100%; resize:vertical; min-height:80px;}
+  .search-wrap{position:relative; min-width:230px; flex:1; max-width:360px;}
+  .search-wrap .input{padding-left:34px;}
+  .search-icon{position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:13px;}
+
+  .btn{ display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--text); white-space:nowrap; }
+  .btn:hover{background:var(--card-hover);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:var(--accent-text);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-ghost{background:transparent;}
+  .btn-sm{padding:6px 12px; font-size:12px;}
+  .btn-icon{padding:8px 10px;}
+  .btn-danger{color:var(--danger); border-color:rgba(248,113,113,.3);}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+  .btn.chip{border-radius:20px;}
+  .btn.chip.active{background:var(--accent-bg); border-color:var(--accent); color:var(--accent);}
+  .spacer{flex:1;}
+
+  .chip-row{display:flex; gap:6px; flex-wrap:wrap;}
+  .color-swatch{ width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid var(--border); flex-shrink:0; }
+  .color-swatch.active{ border-color:var(--text); box-shadow:0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
+
+  /* Masonry explore/board grid */
+  .masonry{ column-count:5; column-gap:14px; }
+  @media (max-width:1500px){ .masonry{column-count:4;} }
+  @media (max-width:1150px){ .masonry{column-count:3;} }
+  @media (max-width:820px){ .masonry{column-count:2;} }
+  @media (max-width:520px){ .masonry{column-count:1;} }
+  .m-item{ break-inside:avoid; margin-bottom:14px; border-radius:var(--radius); overflow:hidden; position:relative; background:var(--card); border:1px solid var(--border); cursor:pointer; }
+  .m-item img, .m-item video{width:100%; display:block; background:var(--bg-elev);}
+  .m-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.72) 100%); opacity:0; transition:opacity .15s; display:flex; flex-direction:column; justify-content:space-between; padding:10px; }
+  .m-item:hover .m-overlay{opacity:1;}
+  .m-top-row{display:flex; justify-content:flex-end; gap:6px;}
+  .m-round-btn{ width:32px; height:32px; border-radius:50%; background:rgba(20,20,22,.85); border:1px solid rgba(255,255,255,.15); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; backdrop-filter:blur(4px); }
+  .m-round-btn.liked{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:var(--accent-text);}
+  .m-round-btn:hover{filter:brightness(1.15);}
+  .m-bottom{color:#fff;}
+  .m-title{font-weight:700; font-size:12.5px; margin-bottom:3px; text-shadow:0 1px 3px rgba(0,0,0,.5);}
+  .m-tags{font-size:11px; opacity:.85;}
+  .m-play-badge{ position:absolute; top:10px; left:10px; background:rgba(20,20,22,.8); border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; }
+
+  .empty-state{ text-align:center; padding:80px 20px; color:var(--text-dim); }
+  .empty-state .icon{font-size:32px; margin-bottom:14px; opacity:.6;}
+  .empty-state h3{color:var(--text); font-size:17px; margin:0 0 8px;}
+
+  /* Boards list */
+  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;}
+  .board-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; cursor:pointer; }
+  .board-card:hover{border-color:var(--accent);}
+  .board-cover{ height:150px; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:2px; background:var(--bg-elev); }
+  .board-cover img{width:100%; height:100%; object-fit:cover; display:block;}
+  .board-cover.single{grid-template-columns:1fr; grid-template-rows:1fr;}
+  .board-cover-empty{display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:26px;}
+  .board-info{padding:12px 14px;}
+  .board-name{font-weight:800; font-size:14.5px;}
+  .board-meta{color:var(--text-dim); font-size:12px; margin-top:2px;}
+  .board-new-card{ border:1.5px dashed var(--border); border-radius:var(--radius); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:210px; cursor:pointer; color:var(--text-dim); font-weight:700; }
+  .board-new-card:hover{border-color:var(--accent); color:var(--accent);}
+
+  /* Board detail */
+  .board-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
+  .back-btn{background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:13px; font-weight:700; display:flex; align-items:center; gap:4px;}
+  .back-btn:hover{color:var(--text);}
+  .view-toggle{display:flex; gap:4px; background:var(--bg-elev); border:1px solid var(--border); border-radius:9px; padding:3px;}
+  .view-toggle .vt{padding:7px 13px; border-radius:7px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--text-dim);}
+  .view-toggle .vt.active{background:var(--card); color:var(--text);}
+
+  /* Canvas board */
+  .canvas-viewport{ width:100%; height:calc(100vh - 230px); min-height:420px; overflow:hidden; position:relative; background:
+      radial-gradient(circle, var(--border) 1px, transparent 1px) 0 0/22px 22px, var(--bg-elev);
+      border:1px solid var(--border); border-radius:var(--radius); cursor:grab; }
+  .canvas-viewport.panning{cursor:grabbing;}
+  .canvas-surface{position:absolute; left:0; top:0; width:1px; height:1px; transform-origin:0 0;}
+  .canvas-item{ position:absolute; border-radius:10px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.35); border:1px solid var(--border); background:var(--card); }
+  .canvas-item img, .canvas-item video{width:100%; height:100%; display:block; object-fit:cover; pointer-events:none; -webkit-user-drag:none;}
+  .canvas-item .ci-remove{ position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%; background:rgba(20,20,22,.85); color:#fff; border:none; font-size:12px; cursor:pointer; display:none; align-items:center; justify-content:center; }
+  .canvas-item:hover .ci-remove{display:flex;}
+  .resize-handle{ position:absolute; right:2px; bottom:2px; width:14px; height:14px; cursor:nwse-resize; background:rgba(255,255,255,.9); border-radius:3px; display:none; }
+  .canvas-item:hover .resize-handle{display:block;}
+  .canvas-controls{ position:absolute; right:14px; bottom:14px; display:flex; flex-direction:column; gap:6px; z-index:5; }
+  .canvas-controls button{ width:34px; height:34px; border-radius:9px; background:var(--card); border:1px solid var(--border); color:var(--text); cursor:pointer; font-size:15px; }
+  .canvas-controls button:hover{background:var(--card-hover);}
+  .canvas-hint{position:absolute; left:14px; top:14px; background:var(--card); border:1px solid var(--border); border-radius:9px; padding:8px 12px; font-size:12px; color:var(--text-dim); z-index:5;}
+
+  /* Modals */
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.65); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px; }
+  .modal{ background:var(--bg-elev); border:1px solid var(--border); border-radius:16px; width:100%; max-width:560px; max-height:88vh; overflow-y:auto; padding:24px; }
+  .modal.wide{max-width:920px;}
+  .modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+  .modal-head h3{font-size:17px; margin:0; font-weight:800;}
+  .modal-close{cursor:pointer; color:var(--text-dim); font-size:20px; background:none; border:none;}
+  .modal-sub{color:var(--text-dim); font-size:12.5px; margin:0 0 16px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:6px;}
+  .field-row{display:flex; gap:12px;}
+  .field-row .field{flex:1;}
+  .modal-foot{display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); flex-wrap:wrap; gap:10px;}
+  .board-pick-row{ display:flex; align-items:center; gap:12px; padding:10px 4px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .board-pick-row:last-child{border-bottom:none;}
+  .pick-check{ width:17px; height:17px; border-radius:5px; border:1.5px solid var(--text-faint); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; }
+  .pick-check.checked{background:var(--accent); border-color:var(--accent); color:var(--accent-text);}
+  .pick-thumb{width:34px; height:34px; border-radius:6px; object-fit:cover; background:var(--card);}
+  .pick-name{font-weight:700; font-size:13px; flex:1;}
+  .tag-editor{display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
+  .tag-pill{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:5px 11px; font-size:12px; display:flex; align-items:center; gap:6px;}
+  .tag-pill button{background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:12px;}
+  .drop-zone{ border:1.5px dashed var(--border); border-radius:12px; padding:26px; text-align:center; color:var(--text-dim); font-size:13px; cursor:pointer; }
+  .drop-zone.drag{border-color:var(--accent); color:var(--accent); background:var(--accent-bg);}
+
+  /* Lightbox */
+  .lightbox-body{display:flex; gap:0; max-height:78vh;}
+  .lb-media{flex:1.3; background:#000; display:flex; align-items:center; justify-content:center; min-width:0;}
+  .lb-media img, .lb-media video{max-width:100%; max-height:78vh; display:block; object-fit:contain;}
+  .lb-side{flex:1; padding:22px; overflow-y:auto; min-width:280px;}
+  .lb-title-input{ font-size:18px; font-weight:800; background:none; border:none; color:var(--text); width:100%; padding:0 0 6px; border-bottom:1px solid transparent; }
+  .lb-title-input:focus{outline:none; border-bottom-color:var(--border);}
+  .lb-section{margin-top:18px;}
+  .lb-section h4{font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); margin:0 0 8px;}
+  .palette-row{display:flex; gap:6px;}
+  .palette-dot{width:26px; height:26px; border-radius:50%; border:1px solid rgba(255,255,255,.15);}
+  .similar-row{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  .similar-row img{width:100%; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; background:var(--card);}
+  @media (max-width:720px){ .lightbox-body{flex-direction:column;} .lb-media img,.lb-media video{max-height:40vh;} }
+
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); padding:11px 20px; border-radius:9px; font-size:13.5px; font-weight:600; z-index:200; box-shadow:0 8px 24px rgba(0,0,0,.4); max-width:80vw; text-align:center; }
+
+  @media (max-width:720px){ main{padding:16px;} .field-row{flex-direction:column;} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================= COLOR NAMES ============================= */
+const NAMED_COLORS = [
+  {name:'negro', hex:'#141414', rgb:[20,20,20]},
+  {name:'blanco', hex:'#f2f2f2', rgb:[242,242,242]},
+  {name:'gris', hex:'#8a8a8a', rgb:[138,138,138]},
+  {name:'rojo', hex:'#d9483f', rgb:[217,72,63]},
+  {name:'naranja', hex:'#e08a3c', rgb:[224,138,60]},
+  {name:'amarillo', hex:'#e3ca55', rgb:[227,202,85]},
+  {name:'verde', hex:'#5aa668', rgb:[90,166,104]},
+  {name:'turquesa', hex:'#3fada3', rgb:[63,173,163]},
+  {name:'azul', hex:'#4d76c9', rgb:[77,118,201]},
+  {name:'violeta', hex:'#8a6fce', rgb:[138,111,206]},
+  {name:'rosa', hex:'#d0799f', rgb:[208,121,159]},
+  {name:'marron', hex:'#8a6142', rgb:[138,97,66]},
+];
+function nearestColorName(r,g,b){
+  let best=null,bestD=Infinity;
+  for(const c of NAMED_COLORS){
+    const d=(r-c.rgb[0])**2+(g-c.rgb[1])**2+(b-c.rgb[2])**2;
+    if(d<bestD){bestD=d;best=c;}
+  }
+  return best.name;
+}
+function extractPalette(imgEl){
+  return new Promise(resolve=>{
+    try{
+      const c=document.createElement('canvas'); c.width=32; c.height=32;
+      const ctx=c.getContext('2d');
+      ctx.drawImage(imgEl,0,0,32,32);
+      const data=ctx.getImageData(0,0,32,32).data;
+      const counts={};
+      for(let i=0;i<data.length;i+=4){
+        if(data[i+3]<80) continue;
+        const name=nearestColorName(data[i],data[i+1],data[i+2]);
+        counts[name]=(counts[name]||0)+1;
+      }
+      const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+      resolve(sorted.slice(0,3));
+    }catch(e){ resolve([]); }
+  });
+}
+
+/* ============================= SEED DATA ============================= */
+const MOODS = ['cinematico','urbano','minimalista','editorial','natural','calido','noir','pastel','retro','abstracto'];
+const MOOD_LABEL = {cinematico:'Cinemático',urbano:'Urbano',minimalista:'Minimalista',editorial:'Editorial',natural:'Natural',calido:'Cálido',noir:'Noir',pastel:'Pastel',retro:'Retro',abstracto:'Abstracto'};
+
+function pic(seed,w,h){ return `https://picsum.photos/seed/${seed}/${w}/${h}`; }
+
+function seedItems(){
+  const raw = [
+    ['Contraluz en la niebla','cinematico',['luz','dramatico','cine'],'musa-01',600,800],
+    ['Cruce nocturno','urbano',['ciudad','noche','neon'],'musa-02',600,760],
+    ['Fachada geométrica','minimalista',['arquitectura','sombra','geometria'],'musa-03',600,600],
+    ['Retrato de estudio','editorial',['moda','retrato','estudio'],'musa-04',600,900],
+    ['Claro de bosque','natural',['bosque','verde','luz'],'musa-05',600,820],
+    ['Hora dorada','calido',['atardecer','dorado','paisaje'],'musa-06',600,760],
+    ['Callejón en blanco y negro','noir',['b/n','sombra','callejon'],'musa-07',600,850],
+    ['Tonos pastel','pastel',['color','suave','minimal'],'musa-08',600,700],
+    ['Grano analógico','retro',['vintage','grano','analogico'],'musa-09',600,780],
+    ['Cima entre nubes','cinematico',['niebla','montaña','escala'],'musa-10',600,900],
+    ['Reflejo en vidrio','urbano',['ciudad','reflejo','vidrio'],'musa-11',600,700],
+    ['Líneas y concreto','minimalista',['arquitectura','concreto','lineas'],'musa-12',600,760],
+    ['Editorial de temporada','editorial',['moda','color','composicion'],'musa-13',600,860],
+    ['Textura de agua','natural',['agua','textura','calma'],'musa-14',600,700],
+    ['Interior cálido','calido',['interior','madera','luz'],'musa-15',600,780],
+    ['Silueta en penumbra','noir',['silueta','sombra','misterio'],'musa-16',600,900],
+    ['Cielo de algodón','pastel',['cielo','nube','suave'],'musa-17',600,650],
+    ['Polaroid perdida','retro',['polaroid','nostalgia','color'],'musa-18',600,750],
+    ['Desierto infinito','cinematico',['desierto','horizonte','escala'],'musa-19',600,800],
+    ['Mercado al amanecer','urbano',['gente','mercado','movimiento'],'musa-20',600,760],
+    ['Formas en concreto','minimalista',['forma','luz','sombra'],'musa-21',600,700],
+    ['Moda en movimiento','editorial',['moda','movimiento','tela'],'musa-22',600,880],
+    ['Hojas y rocío','natural',['hojas','rocio','detalle'],'musa-23',600,720],
+    ['Café de domingo','calido',['comida','interior','calma'],'musa-24',600,700],
+    ['Escalera infinita','noir',['arquitectura','patron','b/n'],'musa-25',600,860],
+    ['Composición abstracta','abstracto',['forma','color','patron'],'musa-26',600,700],
+    ['Textura de tela','abstracto',['tela','textura','color'],'musa-27',600,680],
+    ['Ruta costera','cinematico',['ruta','mar','viaje'],'musa-28',600,820],
+  ];
+  return raw.map(([title,mood,tags,seed,w,h])=>({
+    id:'it_'+seed, title, mood, tags, type:'image',
+    url:pic(seed,w,h), sourceUrl:pic(seed,w,h),
+    colors:undefined, aspect: w/h, source:'seed', createdAt: Date.now(),
+  }));
+}
+
+function seedVideos(){
+  const raw = [
+    ['Nubes en timelapse','natural',['cielo','movimiento','timelapse'],'BigBuckBunny','musa-v1'],
+    ['Escena de apertura','cinematico',['cine','escena','narrativa'],'ElephantsDream','musa-v2'],
+    ['Llamas en cámara lenta','calido',['fuego','textura','movimiento'],'ForBiggerBlazes','musa-v3'],
+  ];
+  return raw.map(([title,mood,tags,file,seed])=>({
+    id:'it_'+seed, title, mood, tags, type:'video',
+    url:`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/${file}.mp4`,
+    poster:pic(seed,600,340), sourceUrl:'', colors:[], aspect:16/9, source:'seed', createdAt: Date.now(),
+  }));
+}
+
+function autoPlacePosition(index){
+  // cellH is generous (max item height at w:230 is ~345px for the tallest aspect ratios
+  // in the seed library) so grid rows never visually overlap on the free-form canvas.
+  const cols=4, cellW=300, cellH=380;
+  const col=index%cols, row=Math.floor(index/cols);
+  const jitterX=((index*37)%17)-8, jitterY=((index*53)%13)-6;
+  return {x:col*cellW+jitterX, y:row*cellH+jitterY, w:230};
+}
+
+function seedState(){
+  const items = [...seedItems(), ...seedVideos()];
+  const byMood = m => items.filter(it=>it.mood===m).map(it=>it.id);
+
+  const boardAItems = items.slice(0,7).map(it=>it.id);
+  const boardAPositions={}; boardAItems.forEach((id,i)=> boardAPositions[id]=autoPlacePosition(i));
+
+  const urbanItems = [...byMood('urbano'), ...byMood('noir')].slice(0,6);
+  const boardBPositions={};
+  urbanItems.forEach((id,i)=> boardBPositions[id]=autoPlacePosition(i));
+
+  const boards = [
+    { id:'bd_referencias', name:'Referencias cinemáticas', description:'Luz, composición y encuadre para el próximo rodaje.',
+      itemIds:boardAItems, positions:boardAPositions, pan:{x:40,y:20,zoom:1}, view:'grid', createdAt:Date.now() },
+    { id:'bd_urbano', name:'Paleta urbana', description:'Ciudad, noche y contraste — moodboard en lienzo libre.',
+      itemIds:urbanItems, positions:boardBPositions, pan:{x:40,y:20,zoom:1}, view:'canvas', createdAt:Date.now() },
+  ];
+
+  return {
+    items, boards,
+    ui:{ filterMoods:[], filterColors:[], filterType:'all', search:'' },
+  };
+}
+
+function uid(p){ return (p||'id')+'_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+
+let state = seedState();
+let ui = { tab:'explorar', currentBoardId:null, modal:null, modalData:{}, search:'', filterMoods:[], filterColors:[], filterType:'all', lightboxItemId:null };
+let paletteQueue = new Set();
+let interaction = null; // drag / pan / resize state (module-level, not re-rendered on move)
+
+/* ============================= STORAGE ============================= */
+const STORAGE_KEY='musa-moodboard-v1';
+const hasClaudeStorage = (typeof window !== 'undefined' && !!window.storage);
+async function storageGet(key){
+  if(hasClaudeStorage){ try{ return await window.storage.get(key, true); }catch(e){ return null; } }
+  try{ const v=localStorage.getItem(key); return v?{value:v}:null; }catch(e){ return null; }
+}
+async function storageSet(key, value){
+  if(hasClaudeStorage){ try{ await window.storage.set(key, value, true); }catch(e){ console.error('No se pudo guardar', e); } return; }
+  try{ localStorage.setItem(key, value); }catch(e){ console.error('No se pudo guardar', e); }
+}
+let saveTimer=null;
+function saveState(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ storageSet(STORAGE_KEY, JSON.stringify(state)); }, 250);
+}
+async function loadState(){
+  try{
+    const res = await storageGet(STORAGE_KEY);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = Object.assign(seedState(), parsed);
+    }
+  }catch(e){ /* sin estado guardado aun */ }
+}
+
+/* ============================= HELPERS ============================= */
+function getItem(id){ return state.items.find(i=>i.id===id); }
+function getBoard(id){ return state.boards.find(b=>b.id===id); }
+function toast(msg){
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2600);
+}
+function ensureDefaultBoard(){
+  let b = state.boards.find(b=>b.id==='bd_guardados');
+  if(!b){
+    b = {id:'bd_guardados', name:'Guardados', description:'Guardado rápido desde Explorar.', itemIds:[], positions:{}, pan:{x:40,y:20,zoom:1}, view:'grid', createdAt:Date.now()};
+    state.boards.unshift(b);
+  }
+  return b;
+}
+function isItemInBoard(itemId, boardId){ const b=getBoard(boardId); return !!b && b.itemIds.includes(itemId); }
+function addItemToBoard(itemId, boardId){
+  const b=getBoard(boardId); if(!b) return;
+  if(!b.itemIds.includes(itemId)){
+    b.itemIds.push(itemId);
+    b.positions[itemId] = autoPlacePosition(b.itemIds.length-1);
+  }
+  saveState();
+}
+function removeItemFromBoard(itemId, boardId){
+  const b=getBoard(boardId); if(!b) return;
+  b.itemIds = b.itemIds.filter(id=>id!==itemId);
+  delete b.positions[itemId];
+  saveState();
+}
+
+function ensurePalettes(){
+  state.items.forEach(it=>{
+    if(it.type!=='image' || it.colors!==undefined || paletteQueue.has(it.id)) return;
+    paletteQueue.add(it.id);
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      if(!it.aspect) it.aspect = img.naturalWidth/img.naturalHeight;
+      extractPalette(img).then(colors=>{ it.colors=colors; saveState(); softRerender(); });
+    };
+    img.onerror=()=>{ it.colors=[]; softRerender(); };
+    img.src=it.url;
+  });
+}
+let softRerenderTimer=null;
+function softRerender(){
+  clearTimeout(softRerenderTimer);
+  softRerenderTimer=setTimeout(()=>{ if(!interaction) render(); }, 400);
+}
+
+function filteredItems(){
+  const q = ui.search.trim().toLowerCase();
+  return state.items.filter(it=>{
+    if(ui.filterType!=='all' && it.type!==ui.filterType) return false;
+    if(ui.filterMoods.length && !ui.filterMoods.includes(it.mood)) return false;
+    if(ui.filterColors.length){
+      const cs = it.colors||[];
+      if(!ui.filterColors.some(c=>cs.includes(c))) return false;
+    }
+    if(q){
+      const hay = (it.title+' '+it.tags.join(' ')+' '+MOOD_LABEL[it.mood]).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function similarItems(item, limit){
+  return state.items
+    .filter(it=>it.id!==item.id)
+    .map(it=>{
+      let score=0;
+      if(it.mood===item.mood) score+=2;
+      score += it.tags.filter(t=>item.tags.includes(t)).length;
+      score += (it.colors||[]).filter(c=>(item.colors||[]).includes(c)).length;
+      return {it,score};
+    })
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0, limit)
+    .map(x=>x.it);
+}
+
+/* ============================= RENDER ============================= */
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    ${topnav()}
+    <main>${renderPanel()}</main>
+    ${ui.modal ? renderModal() : ''}
+    ${ui.lightboxItemId ? renderLightbox() : ''}
+  `;
+  bindEvents();
+  ensurePalettes();
+}
+
+function topnav(){
+  return `
+  <div class="topnav">
+    <div class="brand" data-action="go-explorar"><div class="brand-icon">✦</div> Musa</div>
+    <div class="nav-tabs">
+      <div class="nav-tab ${ui.tab==='explorar'?'active':''}" data-action="go-explorar">Explorar</div>
+      <div class="nav-tab ${ui.tab==='tableros'?'active':''}" data-action="go-tableros">Tableros</div>
+    </div>
+    <div class="nav-right">
+      <button class="btn btn-sm" data-action="open-import">⬆ Importar</button>
+      <button class="btn btn-sm btn-primary" data-action="open-new-board">+ Nuevo tablero</button>
+    </div>
+  </div>`;
+}
+
+function renderPanel(){
+  if(ui.tab==='tableros'){
+    return ui.currentBoardId ? renderBoardDetail(getBoard(ui.currentBoardId)) : renderBoards();
+  }
+  return renderExplore();
+}
+
+/* ---------- EXPLORE ---------- */
+function renderExplore(){
+  const items = filteredItems();
+  const moodChips = MOODS.map(m=>`<button class="btn chip btn-sm ${ui.filterMoods.includes(m)?'active':''}" data-action="toggle-mood" data-mood="${m}">${MOOD_LABEL[m]}</button>`).join('');
+  const colorSwatches = NAMED_COLORS.map(c=>`<div class="color-swatch ${ui.filterColors.includes(c.name)?'active':''}" style="background:${c.hex}" data-action="toggle-color" data-color="${c.name}" title="${c.name}"></div>`).join('');
+
+  return `
+    <div class="page-head">
+      <div><h1>Explorar</h1><p class="lead">Inspiración cinemática y visual para tus proyectos.</p></div>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrap"><span class="search-icon">🔍</span><input class="input" id="exploreSearch" placeholder="Buscar por palabra clave o etiqueta..." value="${ui.search}"></div>
+      <select class="select" id="typeFilter">
+        <option value="all" ${ui.filterType==='all'?'selected':''}>Todo</option>
+        <option value="image" ${ui.filterType==='image'?'selected':''}>Imágenes</option>
+        <option value="video" ${ui.filterType==='video'?'selected':''}>Video</option>
+      </select>
+      <button class="btn btn-sm" data-action="shuffle">🔀 Sorpréndeme</button>
+      <div class="spacer"></div>
+      <span class="toolbar-label">${items.length} resultados</span>
+    </div>
+    <div class="toolbar" style="margin-top:-8px;">
+      <span class="toolbar-label">Ánimo</span>
+      <div class="chip-row">${moodChips}</div>
+    </div>
+    <div class="toolbar">
+      <span class="toolbar-label">Color</span>
+      <div class="chip-row">${colorSwatches}</div>
+      ${(ui.filterMoods.length||ui.filterColors.length||ui.search||ui.filterType!=='all') ? `<button class="btn btn-sm btn-ghost" data-action="clear-filters">Limpiar filtros</button>` : ''}
+    </div>
+    ${items.length ? `<div class="masonry">${items.map(it=>masonryCard(it)).join('')}</div>` : emptyState('Sin resultados','Probá con otra búsqueda, ánimo o color.')}
+  `;
+}
+
+function masonryCard(it){
+  const liked = isItemInBoard(it.id,'bd_guardados');
+  const media = it.type==='video'
+    ? `<video src="${it.url}" poster="${it.poster||''}" muted preload="metadata"></video><div class="m-play-badge">▶</div>`
+    : `<img src="${it.url}" loading="lazy" alt="${it.title}">`;
+  return `
+  <div class="m-item" data-action="open-lightbox" data-item="${it.id}">
+    ${media}
+    <div class="m-overlay">
+      <div class="m-top-row">
+        <button class="m-round-btn ${liked?'liked':''}" data-action="quick-save" data-item="${it.id}" title="Guardar rápido">${liked?'✓':'♡'}</button>
+        <button class="m-round-btn" data-action="open-save-picker" data-item="${it.id}" title="Guardar en tablero...">＋</button>
+      </div>
+      <div class="m-bottom">
+        <div class="m-title">${it.title}</div>
+        <div class="m-tags">${MOOD_LABEL[it.mood]}${it.tags.length?' · '+it.tags.slice(0,2).join(', '):''}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function emptyState(title, sub){
+  return `<div class="empty-state"><div class="icon">✦</div><h3>${title}</h3><p>${sub}</p></div>`;
+}
+
+/* ---------- BOARDS ---------- */
+function renderBoards(){
+  const cards = state.boards.map(b=>{
+    const covers = b.itemIds.slice(0,4).map(id=>getItem(id)).filter(Boolean);
+    let coverHtml;
+    if(!covers.length) coverHtml = `<div class="board-cover"><div class="board-cover-empty">✦</div></div>`;
+    else if(covers.length===1) coverHtml = `<div class="board-cover single"><img src="${thumbOf(covers[0])}"></div>`;
+    else coverHtml = `<div class="board-cover">${covers.map(c=>`<img src="${thumbOf(c)}">`).join('')}</div>`;
+    return `
+    <div class="board-card" data-action="open-board" data-board="${b.id}">
+      ${coverHtml}
+      <div class="board-info">
+        <div class="board-name">${b.name}</div>
+        <div class="board-meta">${b.itemIds.length} elemento${b.itemIds.length===1?'':'s'}</div>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="page-head"><div><h1>Tableros</h1><p class="lead">Tus colecciones de inspiración.</p></div></div>
+    <div class="board-grid">
+      ${cards}
+      <div class="board-new-card" data-action="open-new-board"><span style="font-size:26px;">＋</span> Nuevo tablero</div>
+    </div>
+  `;
+}
+function thumbOf(it){ return it.type==='video' ? (it.poster||'') : it.url; }
+
+function renderBoardDetail(board){
+  if(!board) return renderBoards();
+  const items = board.itemIds.map(id=>getItem(id)).filter(Boolean);
+  return `
+    <div class="board-head">
+      <button class="back-btn" data-action="go-tableros">← Tableros</button>
+      <h1 style="font-size:20px;">${board.name}</h1>
+      <span class="board-meta" style="color:var(--text-dim); font-size:12.5px;">${items.length} elementos</span>
+      <div class="spacer"></div>
+      <div class="view-toggle">
+        <div class="vt ${board.view==='grid'?'active':''}" data-action="set-board-view" data-view="grid">Cuadrícula</div>
+        <div class="vt ${board.view==='canvas'?'active':''}" data-action="set-board-view" data-view="canvas">Lienzo libre</div>
+      </div>
+      <button class="btn btn-sm" data-action="open-add-to-board">＋ Agregar</button>
+      <button class="btn btn-sm" data-action="open-edit-board" data-board="${board.id}">✏ Editar</button>
+      <button class="btn btn-sm" data-action="export-board" data-board="${board.id}">⬇ Exportar</button>
+      ${board.id!=='bd_guardados' ? `<button class="btn btn-sm btn-danger" data-action="delete-board" data-board="${board.id}">🗑 Eliminar</button>` : ''}
+    </div>
+    ${board.description ? `<p class="lead" style="margin:-10px 0 16px;">${board.description}</p>` : ''}
+    ${items.length===0 ? emptyState('Tablero vacío','Agregá elementos desde Explorar o con el botón "Agregar".') :
+      (board.view==='canvas' ? renderCanvasBoard(board, items) : `<div class="masonry">${items.map(it=>boardGridCard(it,board.id)).join('')}</div>`)}
+  `;
+}
+
+function boardGridCard(it, boardId){
+  const media = it.type==='video'
+    ? `<video src="${it.url}" poster="${it.poster||''}" muted preload="metadata"></video><div class="m-play-badge">▶</div>`
+    : `<img src="${it.url}" loading="lazy" alt="${it.title}">`;
+  return `
+  <div class="m-item" data-action="open-lightbox" data-item="${it.id}">
+    ${media}
+    <div class="m-overlay">
+      <div class="m-top-row"><button class="m-round-btn" data-action="remove-from-current-board" data-item="${it.id}" data-board="${boardId}" title="Quitar del tablero">✕</button></div>
+      <div class="m-bottom"><div class="m-title">${it.title}</div><div class="m-tags">${MOOD_LABEL[it.mood]}</div></div>
+    </div>
+  </div>`;
+}
+
+function renderCanvasBoard(board, items){
+  const pan = board.pan || {x:0,y:0,zoom:1};
+  const nodes = items.map(it=>{
+    const pos = board.positions[it.id] || autoPlacePosition(0);
+    const w = pos.w || 230;
+    const aspect = it.aspect || 0.75;
+    const h = Math.round(w/aspect);
+    const media = it.type==='video'
+      ? `<video src="${it.url}" poster="${it.poster||''}" muted preload="metadata"></video>`
+      : `<img src="${it.url}" alt="${it.title}">`;
+    return `
+    <div class="canvas-item" data-canvas-item="${it.id}" style="left:${pos.x}px; top:${pos.y}px; width:${w}px; height:${h}px;">
+      ${media}
+      <button class="ci-remove" data-action="remove-from-current-board" data-item="${it.id}" data-board="${board.id}" title="Quitar">✕</button>
+      <div class="resize-handle" data-canvas-resize="${it.id}"></div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="canvas-viewport" id="canvasViewport" data-board="${board.id}">
+      <div class="canvas-hint">Arrastrá para mover el lienzo · rueda del mouse para zoom · arrastrá una imagen para reubicarla</div>
+      <div class="canvas-surface" id="canvasSurface" style="transform:translate(${pan.x}px,${pan.y}px) scale(${pan.zoom});">
+        ${nodes}
+      </div>
+      <div class="canvas-controls">
+        <button data-action="canvas-zoom" data-dir="1" title="Acercar">＋</button>
+        <button data-action="canvas-zoom" data-dir="-1" title="Alejar">－</button>
+        <button data-action="canvas-reset" title="Restablecer vista">⤾</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================= MODALS ============================= */
+function renderModal(){
+  const m = ui.modal;
+  if(m==='newBoard') return modalNewBoard();
+  if(m==='editBoard') return modalEditBoard();
+  if(m==='savePicker') return modalSavePicker();
+  if(m==='addToBoard') return modalAddToBoard();
+  if(m==='import') return modalImport();
+  return '';
+}
+function overlay(inner, wide=false){
+  return `<div class="overlay" data-action="close-modal-bg"><div class="modal ${wide?'wide':''}" data-stop>${inner}</div></div>`;
+}
+
+function modalNewBoard(){
+  return overlay(`
+    <div class="modal-head"><h3>Nuevo tablero</h3><button class="modal-close" data-action="close-modal">✕</button></div>
+    <div class="field"><label>Nombre</label><input class="input" id="newBoardName" placeholder="Ej: Paleta de otoño"></div>
+    <div class="field"><label>Descripción (opcional)</label><textarea class="textarea" id="newBoardDesc" placeholder="¿Para qué proyecto es este tablero?"></textarea></div>
+    <div class="field"><label>Vista inicial</label>
+      <select class="select input" id="newBoardView"><option value="grid">Cuadrícula</option><option value="canvas">Lienzo libre</option></select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-action="close-modal">Cancelar</button>
+      <button class="btn btn-primary" data-action="save-new-board">Crear tablero</button>
+    </div>
+  `);
+}
+
+function modalEditBoard(){
+  const b = getBoard(ui.modalData.boardId);
+  if(!b) return '';
+  return overlay(`
+    <div class="modal-head"><h3>Editar tablero</h3><button class="modal-close" data-action="close-modal">✕</button></div>
+    <div class="field"><label>Nombre</label><input class="input" id="editBoardName" value="${b.name}"></div>
+    <div class="field"><label>Descripción</label><textarea class="textarea" id="editBoardDesc">${b.description||''}</textarea></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-action="close-modal">Cancelar</button>
+      <button class="btn btn-primary" data-action="save-edit-board" data-board="${b.id}">Guardar</button>
+    </div>
+  `);
+}
+
+function modalSavePicker(){
+  const item = getItem(ui.modalData.itemId);
+  if(!item) return '';
+  const rows = state.boards.map(b=>`
+    <div class="board-pick-row" data-action="toggle-board-for-item" data-board="${b.id}" data-item="${item.id}">
+      <div class="pick-check ${b.itemIds.includes(item.id)?'checked':''}">${b.itemIds.includes(item.id)?'✓':''}</div>
+      <div class="pick-name">${b.name}</div><span class="board-meta">${b.itemIds.length}</span>
+    </div>`).join('');
+  return overlay(`
+    <div class="modal-head"><h3>Guardar en tablero</h3><button class="modal-close" data-action="close-modal">✕</button></div>
+    <p class="modal-sub">"${item.title}"</p>
+    <div>${rows}</div>
+    <div class="field" style="margin-top:14px; display:flex; gap:8px;">
+      <input class="input" id="quickNewBoardName" placeholder="Crear tablero nuevo...">
+      <button class="btn btn-sm" data-action="create-board-inline" data-item="${item.id}">Crear</button>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" data-action="close-modal">Listo</button></div>
+  `);
+}
+
+function modalAddToBoard(){
+  const boardId = ui.currentBoardId;
+  const board = getBoard(boardId);
+  const q = (ui.modalData.pickSearch||'').toLowerCase();
+  const candidates = state.items.filter(it=> !board.itemIds.includes(it.id) && (!q || (it.title+it.tags.join(' ')).toLowerCase().includes(q)));
+  const rows = candidates.slice(0,60).map(it=>`
+    <div class="board-pick-row" data-action="add-item-to-current-board" data-item="${it.id}">
+      <img class="pick-thumb" src="${thumbOf(it)}">
+      <div class="pick-name">${it.title}</div><span class="board-meta">${MOOD_LABEL[it.mood]}</span>
+    </div>`).join('') || `<p class="modal-sub">No hay elementos que coincidan.</p>`;
+  return overlay(`
+    <div class="modal-head"><h3>Agregar a "${board.name}"</h3><button class="modal-close" data-action="close-modal">✕</button></div>
+    <input class="input" id="addPickSearch" placeholder="Buscar en tu biblioteca..." value="${ui.modalData.pickSearch||''}" style="margin-bottom:10px;">
+    <div style="max-height:340px; overflow-y:auto;">${rows}</div>
+    <div class="modal-foot">
+      <span class="board-meta">También podés <span style="color:var(--accent); cursor:pointer;" data-action="switch-to-import">importar</span> algo nuevo.</span>
+      <button class="btn btn-primary" data-action="close-modal">Listo</button>
+    </div>
+  `, true);
+}
+
+function modalImport(){
+  const drag = ui.modalData.dragOver;
+  return overlay(`
+    <div class="modal-head"><h3>Importar inspiración</h3><button class="modal-close" data-action="close-modal">✕</button></div>
+    <p class="modal-sub">Pegá una o más URLs de imagen/video (una por línea), o subí archivos desde tu equipo.</p>
+    <div class="field"><textarea class="textarea" id="importUrls" placeholder="https://ejemplo.com/imagen.jpg"></textarea></div>
+    <div class="field">
+      <label class="drop-zone ${drag?'drag':''}" id="importDropZone">
+        ⬆ Arrastrá archivos acá o hacé clic para elegir
+        <input type="file" id="importFileInput" accept="image/*,video/*" multiple style="display:none;">
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-action="close-modal">Cancelar</button>
+      <button class="btn btn-primary" data-action="do-import">Importar</button>
+    </div>
+  `);
+}
+
+/* ---------- LIGHTBOX ---------- */
+function renderLightbox(){
+  const it = getItem(ui.lightboxItemId);
+  if(!it) return '';
+  const media = it.type==='video'
+    ? `<video src="${it.url}" controls autoplay muted></video>`
+    : `<img src="${it.url}" alt="${it.title}">`;
+  const palette = (it.colors||[]).map(name=>{
+    const c = NAMED_COLORS.find(x=>x.name===name);
+    return c ? `<div class="palette-dot" style="background:${c.hex}" title="${name}"></div>` : '';
+  }).join('');
+  const tagPills = it.tags.map(t=>`<span class="tag-pill">${t}<button data-action="remove-tag" data-item="${it.id}" data-tag="${t}">✕</button></span>`).join('');
+  const sims = similarItems(it, 6);
+  const simsHtml = sims.length ? `<div class="similar-row">${sims.map(s=>`<img src="${thumbOf(s)}" data-action="open-lightbox" data-item="${s.id}">`).join('')}</div>` : `<p class="modal-sub">Sin coincidencias todavía.</p>`;
+  const inBoards = state.boards.filter(b=>b.itemIds.includes(it.id)).map(b=>b.name).join(', ');
+
+  return `<div class="overlay" data-action="close-lightbox"><div class="modal wide" data-stop style="padding:0; max-width:1000px;">
+    <div class="lightbox-body">
+      <div class="lb-media">${media}</div>
+      <div class="lb-side">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <input class="lb-title-input" id="lbTitleInput" value="${it.title}" data-item="${it.id}">
+          <button class="modal-close" data-action="close-lightbox">✕</button>
+        </div>
+        <p class="modal-sub" style="margin-top:2px;">${MOOD_LABEL[it.mood]}${inBoards?` · en: ${inBoards}`:''}</p>
+
+        <div class="lb-section">
+          <h4>Etiquetas</h4>
+          <div class="tag-editor">${tagPills}
+            <input class="input" style="width:110px; padding:5px 10px; font-size:12px;" placeholder="+ etiqueta" id="lbNewTag" data-item="${it.id}">
+          </div>
+        </div>
+
+        ${palette ? `<div class="lb-section"><h4>Paleta de color</h4><div class="palette-row">${palette}</div></div>` : ''}
+
+        <div class="lb-section">
+          <h4>Guardar</h4>
+          <button class="btn btn-sm" data-action="open-save-picker" data-item="${it.id}">＋ Elegir tablero...</button>
+        </div>
+
+        <div class="lb-section">
+          <h4>Similares</h4>
+          ${simsHtml}
+        </div>
+
+        ${it.source==='user' ? `<div class="lb-section"><button class="btn btn-sm btn-danger" data-action="delete-item" data-item="${it.id}">🗑 Eliminar de la biblioteca</button></div>` : ''}
+      </div>
+    </div>
+  </div></div>`;
+}
+
+/* ============================= ACTIONS ============================= */
+function handleAction(action, el, e){
+  const itemId = el.dataset.item, boardId = el.dataset.board;
+  switch(action){
+    case 'go-explorar': ui.tab='explorar'; ui.currentBoardId=null; render(); break;
+    case 'go-tableros': ui.tab='tableros'; ui.currentBoardId=null; render(); break;
+    case 'open-board': ui.tab='tableros'; ui.currentBoardId=boardId; render(); break;
+    case 'open-new-board': ui.modal='newBoard'; ui.modalData={}; render(); break;
+    case 'open-edit-board': ui.modal='editBoard'; ui.modalData={boardId}; render(); break;
+    case 'open-import': ui.modal='import'; ui.modalData={}; render(); break;
+    case 'open-save-picker': ui.modal='savePicker'; ui.modalData={itemId}; render(); break;
+    case 'open-add-to-board': ui.modal='addToBoard'; ui.modalData={}; render(); break;
+    case 'switch-to-import': ui.modal='import'; ui.modalData={}; render(); break;
+    case 'close-modal': ui.modal=null; ui.modalData={}; render(); break;
+    case 'close-modal-bg': if(e.target===el.closest('.overlay')||e.target.dataset.action==='close-modal-bg'){ ui.modal=null; ui.modalData={}; render(); } break;
+    case 'open-lightbox': ui.lightboxItemId=itemId; render(); break;
+    case 'close-lightbox': if(e.target.dataset.action==='close-lightbox'){ ui.lightboxItemId=null; render(); } break;
+
+    case 'toggle-mood': {
+      const mood = el.dataset.mood;
+      ui.filterMoods = ui.filterMoods.includes(mood) ? ui.filterMoods.filter(m=>m!==mood) : [...ui.filterMoods, mood];
+      render(); break;
+    }
+    case 'toggle-color': {
+      const c = el.dataset.color;
+      ui.filterColors = ui.filterColors.includes(c) ? ui.filterColors.filter(x=>x!==c) : [...ui.filterColors, c];
+      render(); break;
+    }
+    case 'clear-filters': ui.filterMoods=[]; ui.filterColors=[]; ui.filterType='all'; ui.search=''; render(); break;
+    case 'shuffle': { state.items.sort(()=>Math.random()-0.5); render(); break; }
+
+    case 'quick-save': {
+      ensureDefaultBoard();
+      if(isItemInBoard(itemId,'bd_guardados')) removeItemFromBoard(itemId,'bd_guardados');
+      else addItemToBoard(itemId,'bd_guardados');
+      render(); break;
+    }
+    case 'toggle-board-for-item': {
+      if(isItemInBoard(itemId, boardId)) removeItemFromBoard(itemId, boardId);
+      else addItemToBoard(itemId, boardId);
+      render(); break;
+    }
+    case 'create-board-inline': {
+      const name = document.getElementById('quickNewBoardName').value.trim();
+      if(!name){ toast('Poné un nombre para el tablero'); break; }
+      const b = {id:uid('bd'), name, description:'', itemIds:[], positions:{}, pan:{x:40,y:20,zoom:1}, view:'grid', createdAt:Date.now()};
+      state.boards.push(b);
+      addItemToBoard(itemId, b.id);
+      toast('Tablero creado y guardado');
+      render(); break;
+    }
+    case 'remove-from-current-board': removeItemFromBoard(itemId, boardId); render(); break;
+    case 'add-item-to-current-board': addItemToBoard(itemId, ui.currentBoardId); render(); break;
+
+    case 'set-board-view': { const b=getBoard(ui.currentBoardId); b.view=el.dataset.view; saveState(); render(); break; }
+    case 'export-board': exportBoard(boardId); break;
+    case 'delete-board': {
+      if(!confirm('¿Eliminar este tablero? Los elementos siguen en tu biblioteca.')) break;
+      state.boards = state.boards.filter(b=>b.id!==boardId);
+      saveState(); ui.currentBoardId=null; render(); break;
+    }
+
+    case 'save-new-board': {
+      const name = document.getElementById('newBoardName').value.trim();
+      if(!name){ toast('Poné un nombre para el tablero'); break; }
+      const desc = document.getElementById('newBoardDesc').value.trim();
+      const view = document.getElementById('newBoardView').value;
+      const b = {id:uid('bd'), name, description:desc, itemIds:[], positions:{}, pan:{x:40,y:20,zoom:1}, view, createdAt:Date.now()};
+      state.boards.push(b); saveState();
+      ui.modal=null; ui.tab='tableros'; ui.currentBoardId=b.id;
+      toast('Tablero creado'); render(); break;
+    }
+    case 'save-edit-board': {
+      const b = getBoard(boardId);
+      b.name = document.getElementById('editBoardName').value.trim() || b.name;
+      b.description = document.getElementById('editBoardDesc').value.trim();
+      saveState(); ui.modal=null; render(); break;
+    }
+
+    case 'remove-tag': {
+      const it = getItem(itemId); it.tags = it.tags.filter(t=>t!==el.dataset.tag); saveState(); render(); break;
+    }
+    case 'delete-item': {
+      if(!confirm('¿Eliminar este elemento de tu biblioteca?')) break;
+      state.items = state.items.filter(i=>i.id!==itemId);
+      state.boards.forEach(b=>{ b.itemIds=b.itemIds.filter(id=>id!==itemId); delete b.positions[itemId]; });
+      saveState(); ui.lightboxItemId=null; render(); break;
+    }
+
+    case 'canvas-zoom': { const b=getBoard(ui.currentBoardId); const dir=parseFloat(el.dataset.dir); b.pan.zoom=Math.max(.25,Math.min(2.5,(b.pan.zoom||1)+dir*0.15)); saveState(); render(); break; }
+    case 'canvas-reset': { const b=getBoard(ui.currentBoardId); b.pan={x:40,y:20,zoom:1}; saveState(); render(); break; }
+
+    case 'do-import': doImport(); break;
+  }
+}
+
+function exportBoard(boardId){
+  const b = getBoard(boardId);
+  const items = b.itemIds.map(id=>getItem(id)).filter(Boolean).map(it=>({title:it.title, mood:it.mood, tags:it.tags, url:it.url, type:it.type}));
+  const payload = {board:{name:b.name, description:b.description}, items};
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `tablero-${b.name.replace(/\s+/g,'-').toLowerCase()}.json`;
+  link.click();
+  toast('Tablero exportado — no hay servidor, así que compartilo enviando este archivo.');
+}
+
+function fileToItem(file){
+  return new Promise(resolve=>{
+    const isVideo = file.type.startsWith('video');
+    const reader = new FileReader();
+    reader.onload = () => {
+      const item = { id:uid('it'), title:file.name.replace(/\.[^.]+$/,''), mood:'abstracto', tags:[], type: isVideo?'video':'image',
+        url: reader.result, sourceUrl:'', colors: isVideo?[]:undefined, aspect:null, source:'user', createdAt:Date.now() };
+      if(isVideo) item.poster='';
+      resolve(item);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function doImport(){
+  const urlsRaw = document.getElementById('importUrls').value.trim();
+  const urls = urlsRaw ? urlsRaw.split('\n').map(u=>u.trim()).filter(Boolean) : [];
+  const fileInput = document.getElementById('importFileInput');
+  const files = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+  if(!urls.length && !files.length){ toast('Pegá una URL o elegí un archivo'); return; }
+
+  urls.forEach(u=>{
+    const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(u);
+    const name = u.split('/').pop().split('?')[0].replace(/\.[^.]+$/,'') || 'Importado';
+    state.items.unshift({ id:uid('it'), title:name, mood:'abstracto', tags:[], type:isVideo?'video':'image',
+      url:u, sourceUrl:u, colors: isVideo?[]:undefined, aspect:null, source:'user', createdAt:Date.now() });
+  });
+
+  for(const f of files){
+    const item = await fileToItem(f);
+    state.items.unshift(item);
+  }
+
+  saveState();
+  ui.modal=null; ui.modalData={};
+  toast(`Se importaron ${urls.length+files.length} elemento(s)`);
+  render();
+}
+
+/* ============================= CANVAS DRAG / PAN / ZOOM ============================= */
+function bindCanvasInteractions(){
+  const viewport = document.getElementById('canvasViewport');
+  if(!viewport) return;
+  const surface = document.getElementById('canvasSurface');
+  const boardId = viewport.dataset.board;
+
+  viewport.addEventListener('mousedown', (e)=>{
+    if(e.target.closest('.canvas-item') || e.target.closest('.resize-handle')) return;
+    const b = getBoard(boardId);
+    interaction = {type:'pan', startClientX:e.clientX, startClientY:e.clientY, startX:b.pan.x, startY:b.pan.y, boardId};
+    viewport.classList.add('panning');
+  });
+
+  viewport.querySelectorAll('[data-canvas-item]').forEach(elItem=>{
+    elItem.addEventListener('mousedown', (e)=>{
+      if(e.target.closest('.resize-handle') || e.target.closest('.ci-remove')) return;
+      e.stopPropagation();
+      const id = elItem.dataset.canvasItem;
+      const b = getBoard(boardId);
+      const pos = b.positions[id];
+      interaction = {type:'drag-item', el:elItem, itemId:id, boardId, startClientX:e.clientX, startClientY:e.clientY, startX:pos.x, startY:pos.y, zoom:b.pan.zoom||1};
+    });
+  });
+
+  viewport.querySelectorAll('[data-canvas-resize]').forEach(handle=>{
+    handle.addEventListener('mousedown', (e)=>{
+      e.stopPropagation();
+      const id = handle.dataset.canvasResize;
+      const b = getBoard(boardId);
+      const pos = b.positions[id];
+      const it = getItem(id);
+      const parentEl = handle.closest('.canvas-item');
+      interaction = {type:'resize-item', el:parentEl, itemId:id, boardId, startClientX:e.clientX, startClientY:e.clientY,
+        startW:pos.w||230, aspect: it.aspect||0.75, zoom:b.pan.zoom||1};
+    });
+  });
+
+  viewport.addEventListener('wheel', (e)=>{
+    e.preventDefault();
+    const b = getBoard(boardId);
+    const delta = e.deltaY>0 ? -0.08 : 0.08;
+    b.pan.zoom = Math.max(.25, Math.min(2.5, (b.pan.zoom||1)+delta));
+    surface.style.transform = `translate(${b.pan.x}px,${b.pan.y}px) scale(${b.pan.zoom})`;
+    saveState();
+  }, {passive:false});
+}
+
+if(!window.__musaGlobalBound){
+  window.__musaGlobalBound = true;
+  document.addEventListener('mousemove', (e)=>{
+    if(!interaction) return;
+    const dx = e.clientX - interaction.startClientX;
+    const dy = e.clientY - interaction.startClientY;
+    if(interaction.type==='pan'){
+      const b = getBoard(interaction.boardId);
+      b.pan.x = interaction.startX + dx;
+      b.pan.y = interaction.startY + dy;
+      const surface = document.getElementById('canvasSurface');
+      if(surface) surface.style.transform = `translate(${b.pan.x}px,${b.pan.y}px) scale(${b.pan.zoom||1})`;
+    } else if(interaction.type==='drag-item'){
+      const nx = interaction.startX + dx/interaction.zoom;
+      const ny = interaction.startY + dy/interaction.zoom;
+      interaction.el.style.left = nx+'px';
+      interaction.el.style.top = ny+'px';
+      interaction._nx = nx; interaction._ny = ny;
+    } else if(interaction.type==='resize-item'){
+      const nw = Math.max(80, Math.min(900, interaction.startW + dx/interaction.zoom));
+      const nh = Math.round(nw/interaction.aspect);
+      interaction.el.style.width = nw+'px';
+      interaction.el.style.height = nh+'px';
+      interaction._nw = nw;
+    }
+  });
+  document.addEventListener('mouseup', ()=>{
+    if(!interaction) return;
+    if(interaction.type==='pan'){ saveState(); const vp=document.getElementById('canvasViewport'); if(vp) vp.classList.remove('panning'); }
+    else if(interaction.type==='drag-item' && interaction._nx!==undefined){
+      const b = getBoard(interaction.boardId);
+      b.positions[interaction.itemId] = Object.assign({}, b.positions[interaction.itemId], {x:interaction._nx, y:interaction._ny});
+      saveState();
+    } else if(interaction.type==='resize-item' && interaction._nw!==undefined){
+      const b = getBoard(interaction.boardId);
+      b.positions[interaction.itemId] = Object.assign({}, b.positions[interaction.itemId], {w:interaction._nw});
+      saveState();
+    }
+    interaction = null;
+  });
+}
+
+/* ============================= EVENTS ============================= */
+function bindEvents(){
+  document.getElementById('exploreSearch')?.addEventListener('input', e=>{
+    ui.search = e.target.value; render();
+    const el = document.getElementById('exploreSearch'); if(el){ el.focus(); el.selectionStart = el.selectionEnd = ui.search.length; }
+  });
+  document.getElementById('typeFilter')?.addEventListener('change', e=>{ ui.filterType = e.target.value; render(); });
+  document.getElementById('addPickSearch')?.addEventListener('input', e=>{ ui.modalData.pickSearch = e.target.value; render(); });
+
+  document.getElementById('lbTitleInput')?.addEventListener('change', e=>{
+    const it = getItem(e.target.dataset.item); if(it){ it.title = e.target.value.trim() || it.title; saveState(); }
+  });
+  document.getElementById('lbNewTag')?.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      const val = e.target.value.trim().toLowerCase();
+      if(val){ const it = getItem(e.target.dataset.item); if(!it.tags.includes(val)) it.tags.push(val); saveState(); render(); }
+    }
+  });
+
+  const dz = document.getElementById('importDropZone');
+  const fi = document.getElementById('importFileInput');
+  dz?.addEventListener('click', ()=> fi.click());
+  dz?.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('drag'); });
+  dz?.addEventListener('dragleave', ()=> dz.classList.remove('drag'));
+  dz?.addEventListener('drop', e=>{
+    e.preventDefault(); dz.classList.remove('drag');
+    if(e.dataTransfer.files.length){ fi.files = e.dataTransfer.files; dz.textContent=''; dz.append(`${e.dataTransfer.files.length} archivo(s) listos para importar`); }
+  });
+  fi?.addEventListener('change', ()=>{ if(fi.files.length){ dz.textContent=''; dz.append(`${fi.files.length} archivo(s) listos para importar`); } });
+
+  document.querySelectorAll('[data-stop]').forEach(el=> el.addEventListener('click', e=> e.stopPropagation()));
+  document.querySelectorAll('[data-action]').forEach(el=> el.addEventListener('click', e=>{ e.stopPropagation(); handleAction(el.dataset.action, el, e); }));
+
+  bindCanvasInteractions();
+}
+
+/* ============================= BOOTSTRAP ============================= */
+(async function init(){
+  await loadState();
+  render();
+})();
+</script>
+</body>
+</html>
