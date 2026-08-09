@@ -463,6 +463,12 @@ async function doSignUp(){
   ui.modal = null; ui.modalData = {};
   await afterLogin(data.user);
 }
+async function doSignInGoogle(){
+  if(!sb) return;
+  if(location.protocol === 'file:'){ toast('El login con Google necesita que la app esté publicada en una URL (http/https), no funciona abriendo el archivo local.'); return; }
+  const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: window.location.href } });
+  if(error) toast('No se pudo iniciar con Google: '+error.message);
+}
 async function doSignOut(){
   if(!sb) return;
   await sb.auth.signOut();
@@ -833,6 +839,7 @@ function modalAddToBoard(){
 
 function modalImport(){
   const drag = ui.modalData.dragOver;
+  const fetching = ui.modalData.fetchingLink;
   return overlay(`
     <div class="modal-head"><h3>Importar inspiración</h3><button class="modal-close" data-action="close-modal">✕</button></div>
     <p class="modal-sub">Pegá una o más URLs de imagen/video (una por línea), o subí archivos desde tu equipo.</p>
@@ -842,6 +849,14 @@ function modalImport(){
         ⬆ Arrastrá archivos acá o hacé clic para elegir
         <input type="file" id="importFileInput" accept="image/*,video/*" multiple style="display:none;">
       </label>
+    </div>
+    <div class="field">
+      <label>O pegá el link de una página (Pinterest, Behance, un artículo...) y traigo la imagen sola</label>
+      <div style="display:flex; gap:8px;">
+        <input class="input" id="importPageUrl" placeholder="https://www.pinterest.com/pin/..." ${!sb?'disabled':''}>
+        <button class="btn btn-sm" data-action="do-fetch-link" ${(!sb||fetching)?'disabled':''}>${fetching?'Buscando...':'Traer imagen'}</button>
+      </div>
+      ${!sb ? `<p class="modal-sub" style="margin-top:6px;">Necesita conexión con la nube (no disponible ahora mismo).</p>` : ''}
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" data-action="close-modal">Cancelar</button>
@@ -874,6 +889,13 @@ function modalAuth(){
       <button class="btn btn-ghost" data-action="close-modal">Cancelar</button>
       <button class="btn btn-primary" data-action="${tab==='signin'?'do-signin':'do-signup'}" ${authBusy?'disabled':''}>${authBusy?'Un momento...':(tab==='signin'?'Ingresar':'Crear cuenta')}</button>
     </div>
+    <div style="display:flex; align-items:center; gap:10px; margin:18px 0 14px; color:var(--text-faint); font-size:12px;">
+      <div style="flex:1; height:1px; background:var(--border);"></div>o<div style="flex:1; height:1px; background:var(--border);"></div>
+    </div>
+    <button class="btn" style="width:100%; justify-content:center;" data-action="do-google">
+      <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.1 5.5 29.3 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5 44.5 35.3 44.5 24c0-1.2-.1-2.4-.9-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.1 5.5 29.3 3.5 24 3.5c-7.7 0-14.3 4.4-17.7 11.2z"/><path fill="#4CAF50" d="M24 44.5c5.2 0 9.9-1.9 13.5-5.1l-6.2-5.2c-2 1.4-4.6 2.3-7.3 2.3-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.9 16.2 44.5 24 44.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.2 5.2c-.4.4 6.1-4.5 6.1-13.8 0-1.2-.1-2.4-.9-3.5z"/></svg>
+      Continuar con Google
+    </button>
   `);
 }
 
@@ -1024,12 +1046,14 @@ function handleAction(action, el, e){
     case 'auth-tab': ui.modalData.authTab = el.dataset.tab; ui.modalData.authError=''; render(); break;
     case 'do-signin': doSignIn(); break;
     case 'do-signup': doSignUp(); break;
+    case 'do-google': doSignInGoogle(); break;
     case 'sign-out': doSignOut(); break;
 
     case 'canvas-zoom': { const b=getBoard(ui.currentBoardId); const dir=parseFloat(el.dataset.dir); b.pan.zoom=Math.max(.25,Math.min(2.5,(b.pan.zoom||1)+dir*0.15)); saveState(); render(); break; }
     case 'canvas-reset': { const b=getBoard(ui.currentBoardId); b.pan={x:40,y:20,zoom:1}; saveState(); render(); break; }
 
     case 'do-import': doImport(); break;
+    case 'do-fetch-link': doFetchLink(); break;
   }
 }
 
@@ -1081,6 +1105,28 @@ async function doImport(){
   saveState();
   ui.modal=null; ui.modalData={};
   toast(`Se importaron ${urls.length+files.length} elemento(s)`);
+  render();
+}
+
+async function doFetchLink(){
+  if(!sb) return;
+  const input = document.getElementById('importPageUrl');
+  const pageUrl = input.value.trim();
+  if(!pageUrl){ toast('Pegá un link primero'); return; }
+  ui.modalData.fetchingLink = true; render();
+  try{
+    const { data, error } = await sb.functions.invoke('fetch-og', { body:{ url: pageUrl } });
+    if(error) throw error;
+    if(!data || !data.image) throw new Error((data && data.error) || 'No se encontró ninguna imagen en esa página');
+    state.items.unshift({ id:uid('it'), title:data.title||pageUrl, mood:'abstracto', tags:[], type:'image',
+      url:data.image, sourceUrl:pageUrl, colors:undefined, aspect:null, source:'user', createdAt:Date.now() });
+    saveState();
+    ui.modal=null; ui.modalData={};
+    toast('Imagen importada');
+  }catch(e){
+    ui.modalData.fetchingLink = false;
+    toast('No se pudo traer la imagen: '+(e.message||'error desconocido'));
+  }
   render();
 }
 
