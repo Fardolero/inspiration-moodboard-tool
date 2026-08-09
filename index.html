@@ -382,11 +382,12 @@ async function loadState(){
 /* ---------- Cloud sync (Supabase) ---------- */
 function boardToRow(b){
   return { id:b.id, user_id:authUser.id, name:b.name, description:b.description||'', view:b.view||'grid',
-    pan:b.pan||{x:40,y:20,zoom:1}, item_ids:b.itemIds||[], positions:b.positions||{} };
+    pan:b.pan||{x:40,y:20,zoom:1}, item_ids:b.itemIds||[], positions:b.positions||{}, is_public:!!b.isPublic };
 }
 function rowToBoard(r){
   return { id:r.id, name:r.name, description:r.description||'', view:r.view||'grid',
-    pan:r.pan||{x:40,y:20,zoom:1}, itemIds:r.item_ids||[], positions:r.positions||{}, createdAt:new Date(r.created_at||Date.now()).getTime() };
+    pan:r.pan||{x:40,y:20,zoom:1}, itemIds:r.item_ids||[], positions:r.positions||{}, isPublic:!!r.is_public,
+    createdAt:new Date(r.created_at||Date.now()).getTime() };
 }
 function itemToRow(it){
   return { id:it.id, user_id:authUser.id, title:it.title, mood:it.mood, tags:it.tags||[], type:it.type,
@@ -430,6 +431,7 @@ async function afterLogin(user){
       await cloudSync();
     }
   }catch(e){ console.error('Error cargando datos de la nube', e); toast('No se pudo cargar tu cuenta'); }
+  await loadMyProfile();
   saveState(); render();
 }
 
@@ -475,6 +477,134 @@ async function doSignOut(){
   authUser = null;
   toast('Sesión cerrada — seguís viendo tus tableros guardados en este navegador.');
   render();
+}
+
+/* ============================= SOCIAL: perfiles, descubrir, favoritos, comentarios ============================= */
+let myProfile = null;
+async function loadMyProfile(){
+  if(!sb || !authUser) return;
+  try{
+    const { data } = await sb.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
+    myProfile = data || null;
+  }catch(e){ console.error('Error cargando perfil', e); }
+}
+
+async function ensureItemsLoaded(itemIds){
+  if(!sb) return;
+  const missing = itemIds.filter(id => !getItem(id));
+  if(!missing.length) return;
+  try{
+    const { data, error } = await sb.from('items').select('*').in('id', missing);
+    if(error) throw error;
+    (data||[]).forEach(r=>{
+      if(!getItem(r.id)) state.items.push(Object.assign(rowToItem(r), {source:'foreign'}));
+    });
+  }catch(e){ console.error('Error cargando elementos ajenos', e); }
+}
+
+let discoverCache = null;
+async function loadDiscover(force){
+  if(!sb) return;
+  if(discoverCache && !force) return;
+  ui.discoverLoading = true; render();
+  try{
+    const { data: boardRows, error } = await sb.from('boards').select('*').eq('is_public', true).order('created_at', {ascending:false});
+    if(error) throw error;
+    const userIds = [...new Set((boardRows||[]).map(b=>b.user_id))];
+    const boardIds = (boardRows||[]).map(b=>b.id);
+    const [{data:profRows}, {data:likeRows}] = await Promise.all([
+      userIds.length ? sb.from('profiles').select('id,username,display_name').in('id', userIds) : Promise.resolve({data:[]}),
+      boardIds.length ? sb.from('board_likes').select('board_id,user_id').in('board_id', boardIds) : Promise.resolve({data:[]}),
+    ]);
+    const profMap = {}; (profRows||[]).forEach(p=> profMap[p.id]=p);
+    const likeCounts = {}, myLikes = new Set();
+    (likeRows||[]).forEach(l=>{ likeCounts[l.board_id]=(likeCounts[l.board_id]||0)+1; if(authUser && l.user_id===authUser.id) myLikes.add(l.board_id); });
+    const boards = (boardRows||[]).map(r=> Object.assign(rowToBoard(r), {ownerId:r.user_id, owner:profMap[r.user_id]||null}));
+    discoverCache = { boards, likeCounts, myLikes };
+  }catch(e){ console.error('Error cargando Descubrir', e); toast('No se pudo cargar Descubrir'); discoverCache = {boards:[], likeCounts:{}, myLikes:new Set()}; }
+  ui.discoverLoading = false; render();
+}
+
+async function toggleLike(boardId){
+  if(!sb || !authUser){ toast('Iniciá sesión para marcar favoritos'); return; }
+  if(!discoverCache) return;
+  const liked = discoverCache.myLikes.has(boardId);
+  try{
+    if(liked){
+      await sb.from('board_likes').delete().eq('board_id', boardId).eq('user_id', authUser.id);
+      discoverCache.myLikes.delete(boardId);
+      discoverCache.likeCounts[boardId] = Math.max(0, (discoverCache.likeCounts[boardId]||1)-1);
+    } else {
+      await sb.from('board_likes').insert({ board_id:boardId, user_id:authUser.id });
+      discoverCache.myLikes.add(boardId);
+      discoverCache.likeCounts[boardId] = (discoverCache.likeCounts[boardId]||0)+1;
+    }
+  }catch(e){ toast('No se pudo actualizar el favorito'); }
+  render();
+}
+
+let commentsCache = {}; // key: `${boardId}|${itemId||''}` -> {comments:[...], profiles:{id:profile}}
+function commentsKey(boardId, itemId){ return boardId+'|'+(itemId||''); }
+async function loadComments(boardId, itemId){
+  if(!sb) return;
+  const key = commentsKey(boardId, itemId);
+  try{
+    let q = sb.from('comments').select('*').eq('board_id', boardId).order('created_at', {ascending:true});
+    q = itemId ? q.eq('item_id', itemId) : q.is('item_id', null);
+    const { data, error } = await q;
+    if(error) throw error;
+    const userIds = [...new Set((data||[]).map(c=>c.user_id))];
+    const { data:profRows } = userIds.length ? await sb.from('profiles').select('id,username,display_name').in('id', userIds) : {data:[]};
+    const profiles = {}; (profRows||[]).forEach(p=> profiles[p.id]=p);
+    commentsCache[key] = { comments:data||[], profiles };
+  }catch(e){ console.error('Error cargando comentarios', e); commentsCache[key] = { comments:[], profiles:{} }; }
+  render();
+}
+async function postComment(boardId, itemId){
+  if(!sb || !authUser) return;
+  const key = commentsKey(boardId, itemId);
+  const el = document.getElementById('newCommentInput');
+  const body = el ? el.value.trim() : '';
+  if(!body) return;
+  try{
+    await sb.from('comments').insert({ board_id:boardId, item_id:itemId||null, user_id:authUser.id, body });
+    await loadComments(boardId, itemId);
+  }catch(e){ toast('No se pudo publicar el comentario'); }
+}
+async function deleteComment(commentId, boardId, itemId){
+  if(!sb) return;
+  try{
+    await sb.from('comments').delete().eq('id', commentId);
+    await loadComments(boardId, itemId);
+  }catch(e){ toast('No se pudo borrar el comentario'); }
+}
+
+async function saveMyProfile(){
+  if(!sb || !authUser) return;
+  const username = document.getElementById('myUsername').value.trim();
+  const display_name = document.getElementById('myDisplayName').value.trim();
+  const bio = document.getElementById('myBio').value.trim();
+  try{
+    const { error } = await sb.from('profiles').upsert({ id:authUser.id, username: username||null, display_name, bio });
+    if(error) throw error;
+    myProfile = { id:authUser.id, username, display_name, bio };
+    toast('Perfil actualizado');
+  }catch(e){
+    toast(e.message && e.message.includes('duplicate') ? 'Ese nombre de usuario ya está en uso' : 'No se pudo guardar el perfil');
+  }
+  render();
+}
+
+let profileViewCache = {}; // userId -> {profile, boards:[...]}
+async function loadProfileView(userId){
+  if(!sb) return;
+  ui.profileLoading = true; render();
+  try{
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', userId).maybeSingle();
+    const { data: boardRows } = await sb.from('boards').select('*').eq('user_id', userId).eq('is_public', true).order('created_at',{ascending:false});
+    profileViewCache[userId] = { profile, boards:(boardRows||[]).map(r=>Object.assign(rowToBoard(r), {ownerId:userId, owner:profile})) };
+  }catch(e){ console.error('Error cargando perfil', e); profileViewCache[userId] = { profile:null, boards:[] }; }
+  ui.profileLoading = false; render();
 }
 
 /* ============================= HELPERS ============================= */
@@ -581,12 +711,13 @@ function topnav(){
     <div class="nav-tabs">
       <div class="nav-tab ${ui.tab==='explorar'?'active':''}" data-action="go-explorar">Explorar</div>
       <div class="nav-tab ${ui.tab==='tableros'?'active':''}" data-action="go-tableros">Tableros</div>
+      <div class="nav-tab ${ui.tab==='descubrir'?'active':''}" data-action="go-descubrir">Descubrir</div>
     </div>
     <div class="nav-right">
       <button class="btn btn-sm" data-action="open-import">⬆ Importar</button>
       <button class="btn btn-sm btn-primary" data-action="open-new-board">+ Nuevo tablero</button>
       ${authUser
-        ? `<span class="toolbar-label" style="text-transform:none; letter-spacing:0;" title="${authUser.email}">${authUser.email}</span><button class="btn btn-sm btn-ghost" data-action="sign-out">Salir</button>`
+        ? `<span class="toolbar-label" style="text-transform:none; letter-spacing:0; cursor:pointer;" data-action="open-my-profile" title="${authUser.email}">${(myProfile&&myProfile.username)?'@'+myProfile.username:authUser.email}</span><button class="btn btn-sm btn-ghost" data-action="sign-out">Salir</button>`
         : `<button class="btn btn-sm btn-ghost" data-action="open-auth">Iniciar sesión</button>`}
     </div>
   </div>`;
@@ -595,6 +726,13 @@ function topnav(){
 function renderPanel(){
   if(ui.tab==='tableros'){
     return ui.currentBoardId ? renderBoardDetail(getBoard(ui.currentBoardId)) : renderBoards();
+  }
+  if(ui.tab==='descubrir'){
+    if(ui.viewingPublicBoardId) return renderPublicBoardDetail();
+    return renderDiscover();
+  }
+  if(ui.tab==='perfil'){
+    return renderProfileView();
   }
   return renderExplore();
 }
@@ -752,6 +890,141 @@ function renderCanvasBoard(board, items){
   `;
 }
 
+/* ---------- DESCUBRIR (tableros públicos + ranking) ---------- */
+function ownerLabel(owner){
+  if(!owner) return 'alguien';
+  return owner.username ? '@'+owner.username : (owner.display_name||'alguien');
+}
+function renderDiscover(){
+  if(!sb){
+    return `<div class="page-head"><div><h1>Descubrir</h1></div></div>${emptyState('No disponible','Descubrir necesita conexión con la nube.')}`;
+  }
+  if(!discoverCache && !ui.discoverLoading) loadDiscover();
+  if(ui.discoverLoading || !discoverCache){
+    return `<div class="page-head"><div><h1>Descubrir</h1></div></div>${emptyState('Cargando...','Buscando tableros públicos.')}`;
+  }
+  const boards = [...discoverCache.boards].sort((a,b)=> (discoverCache.likeCounts[b.id]||0) - (discoverCache.likeCounts[a.id]||0));
+  const cards = boards.map(b=>{
+    const covers = b.itemIds.slice(0,3).map(id=>getItem(id)).filter(Boolean);
+    const coverHtml = covers.length
+      ? `<div class="board-cover">${covers.map(c=>`<img src="${thumbOf(c)}">`).join('')}</div>`
+      : `<div class="board-cover"><div class="board-cover-empty">✦</div></div>`;
+    const likes = discoverCache.likeCounts[b.id]||0;
+    const liked = discoverCache.myLikes.has(b.id);
+    return `
+    <div class="board-card">
+      <div data-action="open-public-board" data-board="${b.id}" style="cursor:pointer;">${coverHtml}</div>
+      <div class="board-info">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+          <div data-action="open-public-board" data-board="${b.id}" style="cursor:pointer;">
+            <div class="board-name">${b.name}</div>
+            <div class="board-meta" data-action="open-profile" data-user="${b.ownerId}" style="cursor:pointer;">${ownerLabel(b.owner)}</div>
+          </div>
+          <button class="m-round-btn ${liked?'liked':''}" style="position:static; opacity:1; transform:none;" data-action="toggle-like" data-board="${b.id}" title="Favorito">${liked?'♥':'♡'} ${likes||''}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="page-head"><div><h1>Descubrir</h1><p class="lead">Tableros públicos de la comunidad, ordenados por favoritos.</p></div></div>
+    <div class="board-grid">${cards || ''}</div>
+    ${boards.length ? '' : emptyState('Todavía no hay tableros públicos','Marcá uno de los tuyos como público desde "Editar tablero" para que aparezca acá.')}
+  `;
+}
+
+function renderPublicBoardDetail(){
+  const boardId = ui.viewingPublicBoardId;
+  const cached = discoverCache && discoverCache.boards.find(b=>b.id===boardId);
+  const fromProfile = Object.values(profileViewCache).flatMap(p=>p.boards).find(b=>b.id===boardId);
+  const board = cached || fromProfile;
+  if(!board) return emptyState('Tablero no encontrado','Puede que ya no sea público.');
+  ensureItemsLoaded(board.itemIds);
+  const items = board.itemIds.map(id=>getItem(id)).filter(Boolean);
+  const likes = (discoverCache && discoverCache.likeCounts[board.id]) || 0;
+  const liked = discoverCache && discoverCache.myLikes.has(board.id);
+  return `
+    <div class="board-head">
+      <button class="back-btn" data-action="go-descubrir">← Descubrir</button>
+      <h1 style="font-size:20px;">${board.name}</h1>
+      <span class="board-meta" data-action="open-profile" data-user="${board.ownerId}" style="cursor:pointer;">${ownerLabel(board.owner)}</span>
+      <div class="spacer"></div>
+      <button class="btn btn-sm ${liked?'btn-primary':''}" data-action="toggle-like" data-board="${board.id}">${liked?'♥':'♡'} ${likes} favorito${likes===1?'':'s'}</button>
+    </div>
+    ${board.description ? `<p class="lead" style="margin:-10px 0 16px;">${board.description}</p>` : ''}
+    ${items.length ? `<div class="masonry">${items.map(it=>`
+      <div class="m-item" data-action="open-lightbox" data-item="${it.id}" data-board-context="${board.id}">
+        ${it.type==='video' ? `<video src="${it.url}" poster="${it.poster||''}" muted preload="metadata"></video><div class="m-play-badge">▶</div>` : `<img src="${it.url}" loading="lazy" alt="${it.title}">`}
+      </div>`).join('')}</div>` : emptyState('Vacío','Este tablero no tiene elementos.')}
+    <div class="lb-section" style="max-width:640px; margin-top:32px;">
+      <h4>Comentarios</h4>
+      ${renderCommentsSection(board.id, null, authUser && authUser.id===board.ownerId)}
+    </div>
+  `;
+}
+
+function renderCommentsSection(boardId, itemId, isBoardOwner){
+  const key = commentsKey(boardId, itemId);
+  if(!commentsCache[key]) loadComments(boardId, itemId);
+  const data = commentsCache[key];
+  const list = data ? data.comments.map(c=>{
+    const p = data.profiles[c.user_id];
+    const mine = authUser && c.user_id===authUser.id;
+    const canDelete = mine || isBoardOwner;
+    return `<div style="padding:10px 0; border-bottom:1px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; gap:8px;">
+        <span style="font-weight:600; font-size:12.5px;">${ownerLabel(p)}</span>
+        ${canDelete ? `<button class="x-btn" data-action="delete-comment" data-comment="${c.id}" data-board="${boardId}" data-item="${itemId||''}">✕</button>` : ''}
+      </div>
+      <div style="font-size:13px; color:var(--text-dim); margin-top:2px;">${c.body}</div>
+    </div>`;
+  }).join('') : '<p class="modal-sub">Cargando...</p>';
+  const form = authUser ? `
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <input class="input" id="newCommentInput" placeholder="Escribí un comentario...">
+      <button class="btn btn-sm btn-primary" data-action="post-comment" data-board="${boardId}" data-item="${itemId||''}">Publicar</button>
+    </div>` : `<p class="modal-sub" style="margin-top:10px;">Iniciá sesión para comentar.</p>`;
+  return `<div>${list || '<p class="modal-sub">Sin comentarios todavía.</p>'}</div>${form}`;
+}
+
+/* ---------- PERFIL ---------- */
+function renderProfileView(){
+  const userId = ui.profileUserId;
+  if(userId === (authUser && authUser.id)){
+    return renderMyProfileView();
+  }
+  const cached = profileViewCache[userId];
+  if(!cached && !ui.profileLoading) loadProfileView(userId);
+  if(!cached) return emptyState('Cargando perfil...','');
+  const { profile, boards } = cached;
+  const cards = boards.map(b=>{
+    const covers = b.itemIds.slice(0,3).map(id=>getItem(id)).filter(Boolean);
+    const coverHtml = covers.length
+      ? `<div class="board-cover">${covers.map(c=>`<img src="${thumbOf(c)}">`).join('')}</div>`
+      : `<div class="board-cover"><div class="board-cover-empty">✦</div></div>`;
+    return `<div class="board-card" data-action="open-public-board" data-board="${b.id}">${coverHtml}
+      <div class="board-info"><div class="board-name">${b.name}</div><div class="board-meta">${b.itemIds.length} elementos</div></div></div>`;
+  }).join('');
+  return `
+    <button class="back-btn" data-action="go-descubrir" style="margin-bottom:14px;">← Descubrir</button>
+    <div class="page-head"><div>
+      <h1>${profile ? ownerLabel(profile) : 'Perfil'}</h1>
+      ${profile && profile.bio ? `<p class="lead">${profile.bio}</p>` : ''}
+    </div></div>
+    <div class="board-grid">${cards}</div>
+    ${boards.length ? '' : emptyState('Sin tableros públicos','Esta persona todavía no compartió tableros.')}
+  `;
+}
+function renderMyProfileView(){
+  return `
+    <button class="back-btn" data-action="go-descubrir" style="margin-bottom:14px;">← Descubrir</button>
+    <div class="page-head"><div><h1>Mi perfil</h1></div></div>
+    <div class="field" style="max-width:420px;"><label>Nombre de usuario</label><input class="input" id="myUsername" value="${(myProfile&&myProfile.username)||''}" placeholder="tu_usuario"></div>
+    <div class="field" style="max-width:420px;"><label>Nombre para mostrar</label><input class="input" id="myDisplayName" value="${(myProfile&&myProfile.display_name)||''}"></div>
+    <div class="field" style="max-width:420px;"><label>Bio</label><textarea class="textarea" id="myBio" style="min-height:60px;">${(myProfile&&myProfile.bio)||''}</textarea></div>
+    <button class="btn btn-primary btn-sm" data-action="save-profile">Guardar perfil</button>
+  `;
+}
+
 /* ============================= MODALS ============================= */
 function renderModal(){
   const m = ui.modal;
@@ -789,6 +1062,13 @@ function modalEditBoard(){
     <div class="modal-head"><h3>Editar tablero</h3><button class="modal-close" data-action="close-modal">✕</button></div>
     <div class="field"><label>Nombre</label><input class="input" id="editBoardName" value="${b.name}"></div>
     <div class="field"><label>Descripción</label><textarea class="textarea" id="editBoardDesc">${b.description||''}</textarea></div>
+    <div class="field">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="editBoardPublic" ${b.isPublic?'checked':''} ${!sb?'disabled':''}>
+        Tablero público (aparece en Descubrir, otros pueden verlo, marcarlo como favorito y comentar)
+      </label>
+      ${!sb ? `<p class="modal-sub" style="margin-top:6px;">Necesita conexión con la nube.</p>` : ''}
+    </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" data-action="close-modal">Cancelar</button>
       <button class="btn btn-primary" data-action="save-edit-board" data-board="${b.id}">Guardar</button>
@@ -945,6 +1225,8 @@ function renderLightbox(){
         </div>
 
         ${it.source==='user' ? `<div class="lb-section"><button class="btn btn-sm btn-danger" data-action="delete-item" data-item="${it.id}">🗑 Eliminar de la biblioteca</button></div>` : ''}
+
+        ${ui.lightboxBoardContext ? `<div class="lb-section"><h4>Comentarios</h4>${renderCommentsSection(ui.lightboxBoardContext, it.id, false)}</div>` : ''}
       </div>
     </div>
   </div></div>`;
@@ -957,6 +1239,14 @@ function handleAction(action, el, e){
     case 'go-explorar': ui.tab='explorar'; ui.currentBoardId=null; render(); break;
     case 'go-tableros': ui.tab='tableros'; ui.currentBoardId=null; render(); break;
     case 'open-board': ui.tab='tableros'; ui.currentBoardId=boardId; render(); break;
+    case 'go-descubrir': ui.tab='descubrir'; ui.viewingPublicBoardId=null; ui.profileUserId=null; render(); break;
+    case 'open-public-board': ui.tab='descubrir'; ui.viewingPublicBoardId=boardId; render(); break;
+    case 'toggle-like': toggleLike(boardId); break;
+    case 'open-profile': ui.tab='perfil'; ui.profileUserId=el.dataset.user; render(); break;
+    case 'open-my-profile': ui.tab='perfil'; ui.profileUserId=authUser.id; render(); break;
+    case 'save-profile': saveMyProfile(); break;
+    case 'post-comment': postComment(boardId, el.dataset.item||null); { const inp=document.getElementById('newCommentInput'); if(inp) inp.value=''; } break;
+    case 'delete-comment': deleteComment(el.dataset.comment, boardId, el.dataset.item||null); break;
     case 'open-new-board': ui.modal='newBoard'; ui.modalData={}; render(); break;
     case 'open-edit-board': ui.modal='editBoard'; ui.modalData={boardId}; render(); break;
     case 'open-import': ui.modal='import'; ui.modalData={}; render(); break;
@@ -965,8 +1255,8 @@ function handleAction(action, el, e){
     case 'switch-to-import': ui.modal='import'; ui.modalData={}; render(); break;
     case 'close-modal': ui.modal=null; ui.modalData={}; render(); break;
     case 'close-modal-bg': if(e.target===el.closest('.overlay')||e.target.dataset.action==='close-modal-bg'){ ui.modal=null; ui.modalData={}; render(); } break;
-    case 'open-lightbox': ui.lightboxItemId=itemId; render(); break;
-    case 'close-lightbox': if(e.target.dataset.action==='close-lightbox'){ ui.lightboxItemId=null; render(); } break;
+    case 'open-lightbox': ui.lightboxItemId=itemId; ui.lightboxBoardContext=el.dataset.boardContext||null; render(); break;
+    case 'close-lightbox': if(e.target.dataset.action==='close-lightbox'){ ui.lightboxItemId=null; ui.lightboxBoardContext=null; render(); } break;
 
     case 'toggle-mood': {
       const mood = el.dataset.mood;
@@ -1028,6 +1318,9 @@ function handleAction(action, el, e){
       const b = getBoard(boardId);
       b.name = document.getElementById('editBoardName').value.trim() || b.name;
       b.description = document.getElementById('editBoardDesc').value.trim();
+      const pubEl = document.getElementById('editBoardPublic');
+      if(pubEl) b.isPublic = pubEl.checked;
+      if(b.isPublic && !authUser){ toast('Iniciá sesión para hacer un tablero público'); b.isPublic=false; }
       saveState(); ui.modal=null; render(); break;
     }
 
