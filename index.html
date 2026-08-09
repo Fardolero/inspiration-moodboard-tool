@@ -6,12 +6,14 @@
 <title>Musa — Inspiración y Moodboards</title>
 <style>
   :root{
-    --bg:#0b0b0d; --bg-elev:#141416; --card:#18181b; --card-hover:#1f1f23; --border:#26262b;
-    --text:#f2f2f3; --text-dim:#9a9aa3; --text-faint:#616169;
+    --bg:#0a0a0b; --bg-elev:#131314; --card:#18181a; --card-hover:#202022; --border:#232324;
+    --text:#f4f4f3; --text-dim:#9b9b9c; --text-faint:#636364;
     --accent:#a78bfa; --accent2:#f472b6; --accent-text:#1a0b2e;
     --accent-bg:rgba(167,139,250,.14);
-    --green:#4ade80; --danger:#f87171; --radius:12px;
-    --font: ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto, Arial, sans-serif;
+    --pill:#f4f4f3; --pill-text:#0a0a0b;
+    --green:#4ade80; --danger:#f87171; --radius:16px;
+    --font: "General Sans", "Inter", ui-sans-serif, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-display: var(--font);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -22,18 +24,18 @@
   ::-webkit-scrollbar{width:10px; height:10px;}
   ::-webkit-scrollbar-thumb{background:var(--border); border-radius:6px;}
 
-  .topnav{ display:flex; align-items:center; justify-content:space-between; padding:14px 28px; border-bottom:1px solid var(--border); background:var(--bg); flex-wrap:wrap; gap:12px; position:sticky; top:0; z-index:40; }
-  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:16px; cursor:pointer;}
-  .brand-icon{ width:28px;height:28px;border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent-text); }
-  .nav-tabs{display:flex; gap:4px; background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:3px;}
-  .nav-tab{ padding:8px 16px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; color:var(--text-dim); }
-  .nav-tab.active{background:var(--card); color:var(--text);}
+  .topnav{ display:flex; align-items:center; justify-content:space-between; padding:18px 28px; background:var(--bg); flex-wrap:wrap; gap:20px; position:sticky; top:0; z-index:40; }
+  .brand{display:flex; align-items:center; gap:9px; font-weight:700; font-size:15px; letter-spacing:-.02em; cursor:pointer;}
+  .brand-icon{ width:24px;height:24px;border-radius:7px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--accent-text); }
+  .nav-tabs{display:flex; gap:22px;}
+  .nav-tab{ padding:6px 0; font-weight:500; font-size:14px; cursor:pointer; color:var(--text-dim); }
+  .nav-tab.active{color:var(--text);}
   .nav-right{display:flex; align-items:center; gap:10px;}
 
   main{flex:1; padding:22px 28px 70px; max-width:1440px; width:100%; margin:0 auto;}
 
-  .page-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:16px; }
-  h1{font-size:22px; margin:0; font-weight:800;}
+  .page-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
+  h1{font-size:26px; margin:0; font-weight:600; letter-spacing:-.02em;}
   p.lead{color:var(--text-dim); margin:4px 0 0; font-size:13.5px;}
 
   .toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
@@ -41,26 +43,30 @@
   .select, .input, .textarea{ background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:9px 12px; font-size:13.5px; font-family:var(--font); }
   .input{width:100%;}
   .textarea{width:100%; resize:vertical; min-height:80px;}
-  .search-wrap{position:relative; min-width:230px; flex:1; max-width:360px;}
-  .search-wrap .input{padding-left:34px;}
-  .search-icon{position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:13px;}
+  .search-hero{ max-width:640px; margin:0 auto 28px; }
+  .search-wrap{position:relative; width:100%;}
+  .search-wrap .input{ padding-left:44px; padding-top:15px; padding-bottom:15px; border-radius:999px; background:var(--card); border-color:var(--border); font-size:14px; }
+  .search-wrap .input:focus{outline:none; border-color:var(--text-faint);}
+  .search-icon{position:absolute; left:17px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:14px;}
 
-  .btn{ display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--text); white-space:nowrap; }
+  .btn{ display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border-radius:999px; font-size:13.5px; font-weight:600; cursor:pointer; border:1px solid transparent; background:var(--card); color:var(--text); white-space:nowrap; }
   .btn:hover{background:var(--card-hover);}
-  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:var(--accent-text);}
-  .btn-primary:hover{filter:brightness(1.08);}
-  .btn-ghost{background:transparent;}
-  .btn-sm{padding:6px 12px; font-size:12px;}
+  .btn-primary{background:var(--pill); border-color:transparent; color:var(--pill-text); font-weight:700;}
+  .btn-primary:hover{filter:brightness(.94);}
+  .btn-ghost{background:transparent; border-color:var(--border); color:var(--text-dim);}
+  .btn-ghost:hover{border-color:var(--text-faint); background:transparent; color:var(--text);}
+  .btn-sm{padding:7px 14px; font-size:12.5px;}
   .btn-icon{padding:8px 10px;}
-  .btn-danger{color:var(--danger); border-color:rgba(248,113,113,.3);}
+  .btn-danger{color:var(--danger);}
   .btn:disabled{opacity:.4; cursor:not-allowed;}
-  .btn.chip{border-radius:20px;}
-  .btn.chip.active{background:var(--accent-bg); border-color:var(--accent); color:var(--accent);}
+  .btn.chip{border-radius:999px; background:transparent; padding:8px 14px; font-weight:500; color:var(--text-dim);}
+  .btn.chip:hover{background:transparent; color:var(--text);}
+  .btn.chip.active{background:var(--pill); color:var(--pill-text); padding:8px 16px; font-weight:600;}
   .spacer{flex:1;}
 
-  .chip-row{display:flex; gap:6px; flex-wrap:wrap;}
-  .color-swatch{ width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid var(--border); flex-shrink:0; }
-  .color-swatch.active{ border-color:var(--text); box-shadow:0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
+  .chip-row{display:flex; gap:4px; flex-wrap:wrap; align-items:center;}
+  .color-swatch{ width:20px; height:20px; border-radius:50%; cursor:pointer; border:1px solid rgba(255,255,255,.12); flex-shrink:0; }
+  .color-swatch.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
 
   /* Masonry explore/board grid */
   .masonry{ column-count:5; column-gap:14px; }
@@ -68,44 +74,42 @@
   @media (max-width:1150px){ .masonry{column-count:3;} }
   @media (max-width:820px){ .masonry{column-count:2;} }
   @media (max-width:520px){ .masonry{column-count:1;} }
-  .m-item{ break-inside:avoid; margin-bottom:14px; border-radius:var(--radius); overflow:hidden; position:relative; background:var(--card); border:1px solid var(--border); cursor:pointer; }
+  .m-item{ break-inside:avoid; margin-bottom:14px; border-radius:14px; overflow:hidden; position:relative; background:var(--bg-elev); cursor:pointer; }
   .m-item img, .m-item video{width:100%; display:block; background:var(--bg-elev);}
-  .m-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.72) 100%); opacity:0; transition:opacity .15s; display:flex; flex-direction:column; justify-content:space-between; padding:10px; }
+  .m-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.6) 100%); opacity:0; transition:opacity .15s; display:flex; flex-direction:column; justify-content:space-between; padding:10px; }
   .m-item:hover .m-overlay{opacity:1;}
   .m-top-row{display:flex; justify-content:flex-end; gap:6px;}
-  .m-round-btn{ width:32px; height:32px; border-radius:50%; background:rgba(20,20,22,.85); border:1px solid rgba(255,255,255,.15); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; backdrop-filter:blur(4px); }
-  .m-round-btn.liked{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:var(--accent-text);}
+  .m-round-btn{ width:32px; height:32px; border-radius:50%; background:rgba(10,10,11,.7); border:none; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; backdrop-filter:blur(6px); }
+  .m-round-btn.liked{background:#fff; color:#0a0a0b;}
   .m-round-btn:hover{filter:brightness(1.15);}
   .m-bottom{color:#fff;}
-  .m-title{font-weight:700; font-size:12.5px; margin-bottom:3px; text-shadow:0 1px 3px rgba(0,0,0,.5);}
+  .m-title{font-weight:600; font-size:12.5px; margin-bottom:3px; text-shadow:0 1px 3px rgba(0,0,0,.5);}
   .m-tags{font-size:11px; opacity:.85;}
-  .m-play-badge{ position:absolute; top:10px; left:10px; background:rgba(20,20,22,.8); border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; }
+  .m-play-badge{ position:absolute; top:10px; left:10px; background:rgba(10,10,11,.7); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; backdrop-filter:blur(6px); }
 
   .empty-state{ text-align:center; padding:80px 20px; color:var(--text-dim); }
   .empty-state .icon{font-size:32px; margin-bottom:14px; opacity:.6;}
   .empty-state h3{color:var(--text); font-size:17px; margin:0 0 8px;}
 
   /* Boards list */
-  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;}
-  .board-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; cursor:pointer; }
-  .board-card:hover{border-color:var(--accent);}
-  .board-cover{ height:150px; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:2px; background:var(--bg-elev); }
-  .board-cover img{width:100%; height:100%; object-fit:cover; display:block;}
-  .board-cover.single{grid-template-columns:1fr; grid-template-rows:1fr;}
-  .board-cover-empty{display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:26px;}
-  .board-info{padding:12px 14px;}
-  .board-name{font-weight:800; font-size:14.5px;}
-  .board-meta{color:var(--text-dim); font-size:12px; margin-top:2px;}
-  .board-new-card{ border:1.5px dashed var(--border); border-radius:var(--radius); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:210px; cursor:pointer; color:var(--text-dim); font-weight:700; }
-  .board-new-card:hover{border-color:var(--accent); color:var(--accent);}
+  .board-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:24px 20px;}
+  .board-card{ cursor:pointer; }
+  .board-cover{ height:160px; display:flex; gap:2px; border-radius:14px; overflow:hidden; background:var(--bg-elev); }
+  .board-cover img{flex:1; min-width:0; height:100%; object-fit:cover; display:block;}
+  .board-cover-empty{display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:26px; width:100%;}
+  .board-info{padding:12px 2px 0;}
+  .board-name{font-weight:600; font-size:14.5px;}
+  .board-meta{color:var(--text-dim); font-size:12.5px; margin-top:2px;}
+  .board-new-card{ border:1px dashed var(--border); border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:160px; cursor:pointer; color:var(--text-dim); font-weight:600; }
+  .board-new-card:hover{border-color:var(--text-faint); color:var(--text);}
 
   /* Board detail */
   .board-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
   .back-btn{background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:13px; font-weight:700; display:flex; align-items:center; gap:4px;}
   .back-btn:hover{color:var(--text);}
-  .view-toggle{display:flex; gap:4px; background:var(--bg-elev); border:1px solid var(--border); border-radius:9px; padding:3px;}
-  .view-toggle .vt{padding:7px 13px; border-radius:7px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--text-dim);}
-  .view-toggle .vt.active{background:var(--card); color:var(--text);}
+  .view-toggle{display:flex; gap:2px; background:var(--bg-elev); border-radius:999px; padding:3px;}
+  .view-toggle .vt{padding:7px 15px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--text-dim);}
+  .view-toggle .vt.active{background:var(--pill); color:var(--pill-text);}
 
   /* Canvas board */
   .canvas-viewport{ width:100%; height:calc(100vh - 230px); min-height:420px; overflow:hidden; position:relative; background:
@@ -167,12 +171,49 @@
   .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); padding:11px 20px; border-radius:9px; font-size:13.5px; font-weight:600; z-index:200; box-shadow:0 8px 24px rgba(0,0,0,.4); max-width:80vw; text-align:center; }
 
   @media (max-width:720px){ main{padding:16px;} .field-row{flex-direction:column;} }
+
+  /* Motion */
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes popIn{ from{opacity:0; transform:scale(.96);} to{opacity:1; transform:scale(1);} }
+  @keyframes overlayIn{ from{opacity:0;} to{opacity:1;} }
+  main{animation:fadeUp .32s cubic-bezier(.16,1,.3,1);}
+  .m-item{ transition:transform .28s cubic-bezier(.16,1,.3,1); }
+  .m-item:hover{ transform:translateY(-3px) scale(1.015); }
+  .m-item img, .m-item video{ transition:transform .5s cubic-bezier(.16,1,.3,1); }
+  .m-item:hover img, .m-item:hover video{ transform:scale(1.04); }
+  .board-card{ transition:transform .28s cubic-bezier(.16,1,.3,1); }
+  .board-card:hover{ transform:translateY(-3px); }
+  .board-card:hover .board-cover img{ transform:scale(1.03); }
+  .board-cover img{ transition:transform .5s cubic-bezier(.16,1,.3,1); }
+  .btn, .color-swatch, .nav-tab, .m-round-btn, .view-toggle .vt{ transition:all .15s ease; }
+  .btn:active{ transform:scale(.97); }
+  .m-round-btn{ transform:translateY(4px); opacity:0; transition:transform .2s ease, opacity .2s ease, filter .15s ease, background .15s ease; }
+  .m-item:hover .m-round-btn{ transform:translateY(0); opacity:1; }
+  .m-item:hover .m-round-btn:nth-child(2){ transition-delay:.03s; }
+  .overlay{ animation:overlayIn .18s ease; }
+  .overlay .modal{ animation:popIn .22s cubic-bezier(.16,1,.3,1); }
+  .search-wrap .input{ transition:border-color .2s ease, box-shadow .2s ease; }
+  .search-wrap .input:focus{ box-shadow:0 0 0 3px rgba(255,255,255,.06); }
+  .toast{ animation:popIn .2s cubic-bezier(.16,1,.3,1); }
+  .canvas-item{ transition:box-shadow .2s ease; }
+  .canvas-item:hover{ box-shadow:0 10px 32px rgba(0,0,0,.45); }
+  @media (prefers-reduced-motion: reduce){
+    main, .m-item, .m-item img, .m-item video, .board-card, .board-cover img, .btn, .overlay, .overlay .modal, .toast{ animation:none !important; transition:none !important; }
+  }
 </style>
 </head>
 <body>
 <div id="app"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
+/* ============================= SUPABASE (cuentas + guardado en la nube) ============================= */
+const SUPABASE_URL = 'https://fbpisdkezwxvpxqvjnqp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_a5tToysF7CBLN1ZmbhHyuA_Fw0KEBYF';
+const sb = (typeof window.supabase !== 'undefined') ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let authUser = null;
+let authBusy = false;
+
 /* ============================= COLOR NAMES ============================= */
 const NAMED_COLORS = [
   {name:'negro', hex:'#141414', rgb:[20,20,20]},
@@ -326,7 +367,7 @@ async function storageSet(key, value){
 let saveTimer=null;
 function saveState(){
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{ storageSet(STORAGE_KEY, JSON.stringify(state)); }, 250);
+  saveTimer=setTimeout(()=>{ storageSet(STORAGE_KEY, JSON.stringify(state)); if(authUser) cloudSync(); }, 250);
 }
 async function loadState(){
   try{
@@ -336,6 +377,98 @@ async function loadState(){
       state = Object.assign(seedState(), parsed);
     }
   }catch(e){ /* sin estado guardado aun */ }
+}
+
+/* ---------- Cloud sync (Supabase) ---------- */
+function boardToRow(b){
+  return { id:b.id, user_id:authUser.id, name:b.name, description:b.description||'', view:b.view||'grid',
+    pan:b.pan||{x:40,y:20,zoom:1}, item_ids:b.itemIds||[], positions:b.positions||{} };
+}
+function rowToBoard(r){
+  return { id:r.id, name:r.name, description:r.description||'', view:r.view||'grid',
+    pan:r.pan||{x:40,y:20,zoom:1}, itemIds:r.item_ids||[], positions:r.positions||{}, createdAt:new Date(r.created_at||Date.now()).getTime() };
+}
+function itemToRow(it){
+  return { id:it.id, user_id:authUser.id, title:it.title, mood:it.mood, tags:it.tags||[], type:it.type,
+    url:it.url, poster:it.poster||null, source_url:it.sourceUrl||null, colors:it.colors||[], aspect:it.aspect||null };
+}
+function rowToItem(r){
+  return { id:r.id, title:r.title, mood:r.mood, tags:r.tags||[], type:r.type, url:r.url, poster:r.poster||'',
+    sourceUrl:r.source_url||'', colors:r.colors||[], aspect:r.aspect, source:'user', createdAt:new Date(r.created_at||Date.now()).getTime() };
+}
+let cloudSyncing = false, cloudSyncQueued = false;
+async function cloudSync(){
+  if(!sb || !authUser) return;
+  if(cloudSyncing){ cloudSyncQueued = true; return; }
+  cloudSyncing = true;
+  try{
+    const userItems = state.items.filter(it=>it.source==='user');
+    if(state.boards.length) await sb.from('boards').upsert(state.boards.map(boardToRow));
+    if(userItems.length) await sb.from('items').upsert(userItems.map(itemToRow));
+  }catch(e){ console.error('Error sincronizando con la nube', e); }
+  cloudSyncing = false;
+  if(cloudSyncQueued){ cloudSyncQueued = false; cloudSync(); }
+}
+async function cloudDeleteBoard(id){ if(sb && authUser){ try{ await sb.from('boards').delete().eq('id', id); }catch(e){} } }
+async function cloudDeleteItem(id){ if(sb && authUser){ try{ await sb.from('items').delete().eq('id', id); }catch(e){} } }
+
+async function afterLogin(user){
+  authUser = user;
+  if(!sb) return;
+  try{
+    const [{data:boardRows}, {data:itemRows}] = await Promise.all([
+      sb.from('boards').select('*').eq('user_id', user.id),
+      sb.from('items').select('*').eq('user_id', user.id),
+    ]);
+    if((boardRows && boardRows.length) || (itemRows && itemRows.length)){
+      const seedItemIds = new Set(seedItems().concat(seedVideos()).map(i=>i.id));
+      state.items = state.items.filter(it=>seedItemIds.has(it.id)).concat((itemRows||[]).map(rowToItem));
+      state.boards = (boardRows||[]).map(rowToBoard);
+      toast('Tableros cargados desde tu cuenta');
+    } else {
+      toast('Sesión iniciada — subiendo tus tableros locales...');
+      await cloudSync();
+    }
+  }catch(e){ console.error('Error cargando datos de la nube', e); toast('No se pudo cargar tu cuenta'); }
+  saveState(); render();
+}
+
+async function doSignIn(){
+  if(!sb || authBusy) return;
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if(!email || !password){ ui.modalData.authError='Completá email y contraseña.'; render(); return; }
+  authBusy = true; render();
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  authBusy = false;
+  if(error){ ui.modalData.authError = error.message; render(); return; }
+  ui.modal = null; ui.modalData = {};
+  await afterLogin(data.user);
+}
+async function doSignUp(){
+  if(!sb || authBusy) return;
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if(!email || !password){ ui.modalData.authError='Completá email y contraseña.'; render(); return; }
+  if(password.length < 6){ ui.modalData.authError='La contraseña necesita al menos 6 caracteres.'; render(); return; }
+  authBusy = true; render();
+  const { data, error } = await sb.auth.signUp({ email, password });
+  authBusy = false;
+  if(error){ ui.modalData.authError = error.message; render(); return; }
+  if(!data.session){
+    ui.modalData.authError = '';
+    toast('Cuenta creada — revisá tu email para confirmarla y después iniciá sesión.');
+    ui.modalData.authTab = 'signin'; render(); return;
+  }
+  ui.modal = null; ui.modalData = {};
+  await afterLogin(data.user);
+}
+async function doSignOut(){
+  if(!sb) return;
+  await sb.auth.signOut();
+  authUser = null;
+  toast('Sesión cerrada — seguís viendo tus tableros guardados en este navegador.');
+  render();
 }
 
 /* ============================= HELPERS ============================= */
@@ -446,6 +579,9 @@ function topnav(){
     <div class="nav-right">
       <button class="btn btn-sm" data-action="open-import">⬆ Importar</button>
       <button class="btn btn-sm btn-primary" data-action="open-new-board">+ Nuevo tablero</button>
+      ${authUser
+        ? `<span class="toolbar-label" style="text-transform:none; letter-spacing:0;" title="${authUser.email}">${authUser.email}</span><button class="btn btn-sm btn-ghost" data-action="sign-out">Salir</button>`
+        : `<button class="btn btn-sm btn-ghost" data-action="open-auth">Iniciar sesión</button>`}
     </div>
   </div>`;
 }
@@ -464,28 +600,26 @@ function renderExplore(){
   const colorSwatches = NAMED_COLORS.map(c=>`<div class="color-swatch ${ui.filterColors.includes(c.name)?'active':''}" style="background:${c.hex}" data-action="toggle-color" data-color="${c.name}" title="${c.name}"></div>`).join('');
 
   return `
-    <div class="page-head">
-      <div><h1>Explorar</h1><p class="lead">Inspiración cinemática y visual para tus proyectos.</p></div>
+    <div class="search-hero">
+      <div class="search-wrap"><span class="search-icon">🔍</span><input class="input" id="exploreSearch" placeholder="Buscá por ánimo, color o palabra clave..." value="${ui.search}"></div>
+    </div>
+    <div class="toolbar" style="justify-content:center;">
+      <div class="chip-row">
+        <button class="btn chip btn-sm ${ui.filterMoods.length===0?'active':''}" data-action="clear-moods">Todo</button>
+        ${moodChips}
+      </div>
     </div>
     <div class="toolbar">
-      <div class="search-wrap"><span class="search-icon">🔍</span><input class="input" id="exploreSearch" placeholder="Buscar por palabra clave o etiqueta..." value="${ui.search}"></div>
+      <div class="chip-row">${colorSwatches}</div>
       <select class="select" id="typeFilter">
         <option value="all" ${ui.filterType==='all'?'selected':''}>Todo</option>
         <option value="image" ${ui.filterType==='image'?'selected':''}>Imágenes</option>
         <option value="video" ${ui.filterType==='video'?'selected':''}>Video</option>
       </select>
-      <button class="btn btn-sm" data-action="shuffle">🔀 Sorpréndeme</button>
+      <button class="btn btn-sm btn-ghost" data-action="shuffle">🔀 Sorpréndeme</button>
       <div class="spacer"></div>
       <span class="toolbar-label">${items.length} resultados</span>
-    </div>
-    <div class="toolbar" style="margin-top:-8px;">
-      <span class="toolbar-label">Ánimo</span>
-      <div class="chip-row">${moodChips}</div>
-    </div>
-    <div class="toolbar">
-      <span class="toolbar-label">Color</span>
-      <div class="chip-row">${colorSwatches}</div>
-      ${(ui.filterMoods.length||ui.filterColors.length||ui.search||ui.filterType!=='all') ? `<button class="btn btn-sm btn-ghost" data-action="clear-filters">Limpiar filtros</button>` : ''}
+      ${(ui.filterMoods.length||ui.filterColors.length||ui.search||ui.filterType!=='all') ? `<button class="btn btn-sm btn-ghost" data-action="clear-filters">Limpiar</button>` : ''}
     </div>
     ${items.length ? `<div class="masonry">${items.map(it=>masonryCard(it)).join('')}</div>` : emptyState('Sin resultados','Probá con otra búsqueda, ánimo o color.')}
   `;
@@ -519,11 +653,10 @@ function emptyState(title, sub){
 /* ---------- BOARDS ---------- */
 function renderBoards(){
   const cards = state.boards.map(b=>{
-    const covers = b.itemIds.slice(0,4).map(id=>getItem(id)).filter(Boolean);
-    let coverHtml;
-    if(!covers.length) coverHtml = `<div class="board-cover"><div class="board-cover-empty">✦</div></div>`;
-    else if(covers.length===1) coverHtml = `<div class="board-cover single"><img src="${thumbOf(covers[0])}"></div>`;
-    else coverHtml = `<div class="board-cover">${covers.map(c=>`<img src="${thumbOf(c)}">`).join('')}</div>`;
+    const covers = b.itemIds.slice(0,3).map(id=>getItem(id)).filter(Boolean);
+    const coverHtml = covers.length
+      ? `<div class="board-cover">${covers.map(c=>`<img src="${thumbOf(c)}">`).join('')}</div>`
+      : `<div class="board-cover"><div class="board-cover-empty">✦</div></div>`;
     return `
     <div class="board-card" data-action="open-board" data-board="${b.id}">
       ${coverHtml}
@@ -621,6 +754,7 @@ function renderModal(){
   if(m==='savePicker') return modalSavePicker();
   if(m==='addToBoard') return modalAddToBoard();
   if(m==='import') return modalImport();
+  if(m==='auth') return modalAuth();
   return '';
 }
 function overlay(inner, wide=false){
@@ -716,6 +850,33 @@ function modalImport(){
   `);
 }
 
+function modalAuth(){
+  if(!sb){
+    return overlay(`
+      <div class="modal-head"><h3>Cuenta</h3><button class="modal-close" data-action="close-modal">✕</button></div>
+      <p class="modal-sub">La conexión con la nube no está disponible (no se pudo cargar la librería de Supabase). Tus tableros van a seguir guardándose solo en este navegador.</p>
+      <div class="modal-foot"><button class="btn btn-primary" data-action="close-modal">Entendido</button></div>
+    `);
+  }
+  const tab = ui.modalData.authTab || 'signin';
+  const err = ui.modalData.authError || '';
+  return overlay(`
+    <div class="modal-head"><h3>${tab==='signin'?'Iniciar sesión':'Crear cuenta'}</h3><button class="modal-close" data-action="close-modal">✕</button></div>
+    <p class="modal-sub">Guardá tus tableros en la nube y accedé desde cualquier dispositivo.</p>
+    <div class="view-toggle" style="margin-bottom:16px;">
+      <div class="vt ${tab==='signin'?'active':''}" data-action="auth-tab" data-tab="signin">Ingresar</div>
+      <div class="vt ${tab==='signup'?'active':''}" data-action="auth-tab" data-tab="signup">Crear cuenta</div>
+    </div>
+    <div class="field"><label>Email</label><input class="input" id="authEmail" type="email" placeholder="vos@ejemplo.com" autocomplete="email"></div>
+    <div class="field"><label>Contraseña</label><input class="input" id="authPassword" type="password" placeholder="••••••••" autocomplete="${tab==='signin'?'current-password':'new-password'}"></div>
+    ${err ? `<p class="modal-sub" style="color:var(--danger);">${err}</p>` : ''}
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-action="close-modal">Cancelar</button>
+      <button class="btn btn-primary" data-action="${tab==='signin'?'do-signin':'do-signup'}" ${authBusy?'disabled':''}>${authBusy?'Un momento...':(tab==='signin'?'Ingresar':'Crear cuenta')}</button>
+    </div>
+  `);
+}
+
 /* ---------- LIGHTBOX ---------- */
 function renderLightbox(){
   const it = getItem(ui.lightboxItemId);
@@ -796,6 +957,7 @@ function handleAction(action, el, e){
       render(); break;
     }
     case 'clear-filters': ui.filterMoods=[]; ui.filterColors=[]; ui.filterType='all'; ui.search=''; render(); break;
+    case 'clear-moods': ui.filterMoods=[]; render(); break;
     case 'shuffle': { state.items.sort(()=>Math.random()-0.5); render(); break; }
 
     case 'quick-save': {
@@ -826,6 +988,7 @@ function handleAction(action, el, e){
     case 'delete-board': {
       if(!confirm('¿Eliminar este tablero? Los elementos siguen en tu biblioteca.')) break;
       state.boards = state.boards.filter(b=>b.id!==boardId);
+      cloudDeleteBoard(boardId);
       saveState(); ui.currentBoardId=null; render(); break;
     }
 
@@ -853,8 +1016,15 @@ function handleAction(action, el, e){
       if(!confirm('¿Eliminar este elemento de tu biblioteca?')) break;
       state.items = state.items.filter(i=>i.id!==itemId);
       state.boards.forEach(b=>{ b.itemIds=b.itemIds.filter(id=>id!==itemId); delete b.positions[itemId]; });
+      cloudDeleteItem(itemId);
       saveState(); ui.lightboxItemId=null; render(); break;
     }
+
+    case 'open-auth': ui.modal='auth'; ui.modalData={authTab:'signin', authError:''}; render(); break;
+    case 'auth-tab': ui.modalData.authTab = el.dataset.tab; ui.modalData.authError=''; render(); break;
+    case 'do-signin': doSignIn(); break;
+    case 'do-signup': doSignUp(); break;
+    case 'sign-out': doSignOut(); break;
 
     case 'canvas-zoom': { const b=getBoard(ui.currentBoardId); const dir=parseFloat(el.dataset.dir); b.pan.zoom=Math.max(.25,Math.min(2.5,(b.pan.zoom||1)+dir*0.15)); saveState(); render(); break; }
     case 'canvas-reset': { const b=getBoard(ui.currentBoardId); b.pan={x:40,y:20,zoom:1}; saveState(); render(); break; }
@@ -1044,6 +1214,12 @@ function bindEvents(){
 (async function init(){
   await loadState();
   render();
+  if(sb){
+    try{
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session && session.user) await afterLogin(session.user);
+    }catch(e){ console.error('Error verificando sesión', e); }
+  }
 })();
 </script>
 </body>
